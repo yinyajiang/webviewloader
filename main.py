@@ -3,6 +3,8 @@ import threading
 import time
 import argparse
 import json
+import sys
+import os
 
 def get_info(window, ua =None, wait_elements=None, wait_cookies=None):
     # wait for elements
@@ -50,6 +52,7 @@ def hook(window, ua, element_names, cookie_names):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Cookie loader with customizable parameters')
+    parser.add_argument('url', help='Target URL')
     parser.add_argument('--title', default='',
                         help='Window title')
     parser.add_argument('--ua', default='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
@@ -58,9 +61,15 @@ if __name__ == '__main__':
                         help='Element names to search for (can specify multiple)')
     parser.add_argument('--cookies', nargs='+', default=[],
                         help='Cookie names to search for (can specify multiple)')
-    parser.add_argument('url', help='Target URL')
-  
+    parser.add_argument('--width', default=800, type=int,
+                        help='Window width')
+    parser.add_argument('--height', default=600, type=int,
+                        help='Window height')
     args = parser.parse_args()
 
-    window = webview.create_window(args.title, args.url)
+    title = args.title
+    if not title and len(sys.argv) > 1:
+        title = os.path.basename(sys.argv[0]).split(".")[0]
+
+    window = webview.create_window(title, args.url, width=args.width, height=args.height)
     webview.start(lambda w: hook(w, ua=args.ua, element_names=args.elements, cookie_names=args.cookies), window, user_agent=args.ua)
