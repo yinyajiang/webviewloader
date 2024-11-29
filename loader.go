@@ -19,12 +19,12 @@ type Config struct {
 	WaitCookies  []string
 }
 
-type WebviewerResult struct {
+type ResultInfo struct {
 	UA      string            `json:"ua"`
 	Cookies map[string]string `json:"cookies"`
 }
 
-func Start(url string, cfg Config) (result WebviewerResult, err error) {
+func Start(url string, cfg Config) (result ResultInfo, err error) {
 	webviewerPath, err := checkWebviewEnv(cfg)
 	if err != nil {
 		webviewerPath, err = installWebview(cfg)
