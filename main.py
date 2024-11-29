@@ -51,8 +51,9 @@ def hook(window, ua, element_names, cookie_names):
 
 
 if __name__ == '__main__':
+    default_url = 'https://404.com'
     parser = argparse.ArgumentParser(description='Cookie loader with customizable parameters')
-    parser.add_argument('url', help='Target URL')
+    parser.add_argument('url', default=default_url, help='Target URL')
     parser.add_argument('--title', default='',
                         help='Window title')
     parser.add_argument('--ua', default='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
@@ -66,6 +67,9 @@ if __name__ == '__main__':
     parser.add_argument('--height', default=600, type=int,
                         help='Window height')
     args = parser.parse_args()
+
+    if args.url == default_url:
+        args.elements = ['invalid-element']
 
     title = args.title
     if not title and len(sys.argv) > 1:
