@@ -58,8 +58,6 @@ if __name__ == '__main__':
                         help='Element names to search for (can specify multiple)')
     parser.add_argument('--cookies', nargs='+', default=[],
                         help='Cookie names to search for (can specify multiple)')
-    parser.add_argument('--clear', action='store_true',
-                        help='Clear cookies before loading')
     parser.add_argument('url', help='Target URL')
   
     args = parser.parse_args()
