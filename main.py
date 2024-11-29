@@ -47,6 +47,7 @@ def hook(window, ua, element_names, cookie_names):
         timer.start()
     start_timer()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Cookie loader with customizable parameters')
     parser.add_argument('--title', default='',
@@ -57,8 +58,10 @@ if __name__ == '__main__':
                         help='Element names to search for (can specify multiple)')
     parser.add_argument('--cookies', nargs='+', default=[],
                         help='Cookie names to search for (can specify multiple)')
+    parser.add_argument('--clear', action='store_true',
+                        help='Clear cookies before loading')
     parser.add_argument('url', help='Target URL')
-
+  
     args = parser.parse_args()
 
     window = webview.create_window(args.title, args.url)
