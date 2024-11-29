@@ -24,7 +24,7 @@ type WebviewerResult struct {
 	Cookies map[string]string `json:"cookies"`
 }
 
-func StartWebviewer(url string, cfg Config) (result WebviewerResult, err error) {
+func Start(url string, cfg Config) (result WebviewerResult, err error) {
 	webviewerPath, err := checkWebviewEnv(cfg)
 	if err != nil {
 		webviewerPath, err = installWebview(cfg)
