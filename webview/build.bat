@@ -13,9 +13,16 @@ pip install pyinstaller
 REM Build
 python build_pyinstaller.py %*
 
-REM 查找dist目录下的.exe文件
-set exe_file=%dist_dir%\*.exe
+REM 查找并获取dist目录下的exe文件
+for /f "delims=" %%F in ('dir /b dist\*.exe') do (
+    set "exe_file=dist\%%F"
+    set "exe_name=%%F"
+)
+echo %exe_file%
 
 REM 计算exe的md5
-echo %exe_file%: > %exe_file%.md5
-md5sum %exe_file% >> %exe_file%.md5
+if defined exe_file (
+    python -c "import hashlib; print(r'%exe_name%: ' + hashlib.md5(open(r'%exe_file%', 'rb').read()).hexdigest())" > "%exe_file%.md5"
+) else (
+    echo No exe file found in dist directory
+)
