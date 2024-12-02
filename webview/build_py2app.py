@@ -13,7 +13,7 @@ for arg in sys.argv:
         sys.argv.pop(index)
         sys.argv.pop(index)
 
-ENTRY_POINT = ['webviewer.py']
+ENTRY_POINT = ['webview.py']
 
 DATA_FILES = []
 OPTIONS = {
