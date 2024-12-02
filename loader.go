@@ -32,6 +32,7 @@ type WebviewOptions struct {
 	Height       int
 	WaitElements []string
 	WaitCookies  []string
+	Hidden       bool
 }
 
 type WebviewResult struct {
@@ -88,6 +89,9 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	if len(opt.WaitCookies) > 0 {
 		args = append(args, "--cookies")
 		args = append(args, opt.WaitCookies...)
+	}
+	if opt.Hidden {
+		args = append(args, "--hidden")
 	}
 	webviewPath, err := l.GetWebviewPath()
 	if err != nil {

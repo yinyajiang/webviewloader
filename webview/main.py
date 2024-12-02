@@ -70,11 +70,13 @@ if __name__ == '__main__':
                         help='Window width')
     parser.add_argument('--height', default=600, type=int,
                         help='Window height')
+    parser.add_argument('--hidden', action='store_true',
+                        help='Hide window')
     args = parser.parse_args()
 
     title = args.title
     if not title and len(sys.argv) > 1:
         title = os.path.basename(sys.argv[0]).split(".")[0]
 
-    window = webview.create_window(title, args.url, width=args.width, height=args.height)
+    window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden)
     webview.start(lambda w: hook(w, ua=args.ua, element_names=args.elements, cookie_names=args.cookies), window, user_agent=args.ua)
