@@ -10,7 +10,8 @@ type Config struct {
 	WebviewURL             string
 	WebviewMd5URL          string
 	WebviewWorkDir         string
-	DependniesComponentURL string
+	DependniesComponentURL32 string
+	DependniesComponentURL64 string
 }
 
 type WebviewOptions struct {
@@ -44,7 +45,7 @@ func (l *Loader) CheckEnv() (err error) {
 func (l *Loader) InstallEnv() (err error) {
 	err = checkComponent()
 	if err != nil {
-		err = installComponent(l.cfg.DependniesComponentURL)
+		err = installComponent(l.cfg.DependniesComponentURL32, l.cfg.DependniesComponentURL64, l.cfg.WebviewWorkDir)
 	}
 	return
 }
