@@ -1,4 +1,4 @@
-package loadcookie
+package webviewloader
 
 import (
 	"encoding/json"

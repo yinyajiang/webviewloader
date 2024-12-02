@@ -1,4 +1,4 @@
-package loadcookie
+package webviewloader
 
 import (
 	"crypto/tls"
