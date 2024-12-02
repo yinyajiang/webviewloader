@@ -1,5 +1,5 @@
 REM Check if the virtual environment exists
-IF NOT EXIST "venv" (
+IF NOT EXIST "pyinstaller_venv" (
     REM Create virtual environment
     python -m venv pyinstaller_venv
 )
