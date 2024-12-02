@@ -7,11 +7,14 @@ import (
 )
 
 type Config struct {
-	WebviewerURI     string
-	WebviewerMd5URI  string
-	WebviewerWorkDir string
-	ComposURI        string
+	WebviewURI     string
+	WebviewMd5URI  string
+	WebviewWorkDir string
+	ComposURI      string
+}
 
+type WebviewOptions struct {
+	UA           string
 	Title        string
 	Width        int
 	Height       int
@@ -19,42 +22,61 @@ type Config struct {
 	WaitCookies  []string
 }
 
-type ResultInfo struct {
+type WebviewResult struct {
 	UA      string            `json:"ua"`
 	Cookies map[string]string `json:"cookies"`
 }
 
-func Start(url string, cfg Config) (result ResultInfo, err error) {
-	webviewerPath, err := checkWebviewEnv(cfg)
+type Loader struct {
+	cfg           Config
+	webviewerPath string
+}
+
+func New(cfg Config) *Loader {
+	return &Loader{cfg: cfg}
+}
+
+func (l *Loader) CheckEnv() (err error) {
+	l.webviewerPath, err = checkWebviewEnv(l.cfg)
+	return
+}
+
+func (l *Loader) InstallWebview() (err error) {
+	err = l.CheckEnv()
 	if err != nil {
-		webviewerPath, err = installWebview(cfg)
+		_, err = installWebview(l.cfg)
+	}
+	return
+}
+
+func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
+	if l.webviewerPath == "" {
+		err = l.CheckEnv()
 		if err != nil {
 			return
 		}
 	}
 
-	args := []string{
-		"--url", url,
+	args := []string{url}
+	if opt.Title != "" {
+		args = append(args, "--title", opt.Title)
 	}
-	if cfg.Title != "" {
-		args = append(args, "--title", cfg.Title)
+	if opt.Width > 0 {
+		args = append(args, "--width", fmt.Sprintf("%d", opt.Width))
 	}
-	if cfg.Width > 0 {
-		args = append(args, "--width", fmt.Sprintf("%d", cfg.Width))
+	if opt.Height > 0 {
+		args = append(args, "--height", fmt.Sprintf("%d", opt.Height))
 	}
-	if cfg.Height > 0 {
-		args = append(args, "--height", fmt.Sprintf("%d", cfg.Height))
-	}
-	if len(cfg.WaitElements) > 0 {
+	if len(opt.WaitElements) > 0 {
 		args = append(args, "--elements")
-		args = append(args, cfg.WaitElements...)
+		args = append(args, opt.WaitElements...)
 	}
-	if len(cfg.WaitCookies) > 0 {
+	if len(opt.WaitCookies) > 0 {
 		args = append(args, "--cookies")
-		args = append(args, cfg.WaitCookies...)
+		args = append(args, opt.WaitCookies...)
 	}
 
-	c := exec.Command(webviewerPath, args...)
+	c := exec.Command(l.webviewerPath, args...)
 	stdout, err := c.Output()
 	if err != nil {
 		return

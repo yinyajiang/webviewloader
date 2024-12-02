@@ -6,7 +6,26 @@ import json
 import sys
 import os
 
-def get_info(window, ua =None, wait_elements=None, wait_cookies=None):
+def get_cookies_nm(window):
+    cookies = window.get_cookies()
+    nm = {}
+    for c in cookies:
+        k, v = c.output(header="").strip().split(";")[0].strip().split("=", 1)
+        nm[k] = v
+    return nm
+
+def get_info(window, ua=None, wait_elements=None, wait_cookies=None):
+    wait_info(window, wait_elements, wait_cookies)
+
+    info = {
+        "ua": ua,
+        "cookies": get_cookies_nm(window)
+    }
+    print(json.dumps(info))
+    return True
+
+
+def wait_info(window, wait_elements=None, wait_cookies=None):
     # wait for elements
     if wait_elements:   
         for name in wait_elements:
@@ -20,20 +39,6 @@ def get_info(window, ua =None, wait_elements=None, wait_cookies=None):
         for name in wait_cookies:
             if not any(name+"=" in c.output().strip() for c in cookies):
                 return None
-
-    cookies = window.get_cookies()
-
-    nm = {}
-    for c in cookies:
-        k, v = c.output(header="").strip().split(";")[0].strip().split("=", 1)
-        nm[k] = v
-    info = {
-        "ua": ua,
-        "cookies": nm
-    }
-    print(json.dumps(info))
-    return True
-
 
 
 def hook(window, ua, element_names, cookie_names):
