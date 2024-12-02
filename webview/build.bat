@@ -17,4 +17,5 @@ REM 查找dist目录下的.exe文件
 set exe_file=%dist_dir%\*.exe
 
 REM 计算exe的md5
-md5sum %exe_file% > %exe_file%.md5
+echo %exe_file%: > %exe_file%.md5
+md5sum %exe_file% >> %exe_file%.md5

@@ -20,7 +20,7 @@ cert = get_cert() if args.must_cert else ""
 import PyInstaller.__main__
 
 pyinstaller_args = [
-    os.path.join(".", "webview.py"),
+    os.path.join(".", "main.py"),
     "-y",
     "--exclude-module=PyQt5",
     "--exclude-module=PyQt6",

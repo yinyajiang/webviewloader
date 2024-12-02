@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/duke-git/lancet/v2/fileutil"
@@ -88,7 +89,7 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 		args = append(args, "--cookies")
 		args = append(args, opt.WaitCookies...)
 	}
-	webviewPath, err := l.getWebviewPath()
+	webviewPath, err := l.GetWebviewPath()
 	if err != nil {
 		return
 	}
@@ -101,11 +102,16 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	return
 }
 
-func (l *Loader) getWebviewPath() (path string, err error) {
+func (l *Loader) GetWebviewPath() (path string, err error) {
+	path, _, err = l.getWebviewPath()
+	return
+}
+
+func (l *Loader) getWebviewPath() (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.webviewPath != "" {
-		return l.webviewPath, nil
+		return l.webviewPath, true, nil
 	}
 
 	defer func() {
@@ -134,16 +140,16 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 	exist := false
 	if fileutil.IsExist(webviewPath) {
 		if md5Url == "" {
-			return webviewPath, nil
+			return webviewPath, true, nil
 		}
 		netmd5, err = downloadString(md5Url)
 		if err != nil {
 			fmt.Printf("download md5 failed: %v, %s\n", err, md5Url)
-			return webviewPath, nil
+			return webviewPath, true, nil
 		}
 		md5, _ := fileutil.ReadFileToString(loacalMd5Path)
-		if md5 == netmd5 {
-			return webviewPath, nil
+		if strings.TrimSpace(md5) == strings.TrimSpace(netmd5) {
+			return webviewPath, true, nil
 		}
 		exist = true
 	}
@@ -160,7 +166,7 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 		if exist {
 			err = nil
 		}
-		return webviewPath, err
+		return webviewPath, true, err
 	}
 
 	if !isWindows() {
@@ -183,5 +189,5 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 		os.Chmod(webviewPath, 0755)
 	}
 
-	return webviewPath, err
+	return webviewPath, false, err
 }

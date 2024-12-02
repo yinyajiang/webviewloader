@@ -7,3 +7,4 @@ dist/
 *.spec
 __pycache__/
 mm_*
+Test/
