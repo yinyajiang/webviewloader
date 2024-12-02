@@ -12,13 +12,13 @@ import (
 )
 
 type Config struct {
-	WindowsWebviewURL               string
-	WindowsWebviewMd5URL            string
-	WindowsDependniesComponentURL32 string
-	WindowsDependniesComponentURL64 string
+	WindowsWebviewURI               string
+	WindowsWebviewMd5URI            string
+	WindowsDependniesComponentURI32 string
+	WindowsDependniesComponentURI64 string
 
-	MacWebviewURL    string
-	MacWebviewMd5URL string
+	MacWebviewURI    string
+	MacWebviewMd5URI string
 
 	WebviewWorkDir string
 	WebviewName    string
@@ -59,7 +59,7 @@ func (l *Loader) CheckEnv() (err error) {
 func (l *Loader) InstallEnv() (err error) {
 	err = checkComponent()
 	if err != nil && isWindows() {
-		err = installComponent(l.cfg.WindowsDependniesComponentURL32, l.cfg.WindowsDependniesComponentURL64, l.cfg.WebviewWorkDir)
+		err = installComponent(l.cfg.WindowsDependniesComponentURI32, l.cfg.WindowsDependniesComponentURI64, l.cfg.WebviewWorkDir)
 	}
 	return
 }
@@ -124,9 +124,9 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 		webviewPath += ".app"
 	}
 
-	md5Url := l.cfg.WindowsWebviewMd5URL
+	md5Url := l.cfg.WindowsWebviewMd5URI
 	if !isWindows() {
-		md5Url = l.cfg.MacWebviewMd5URL
+		md5Url = l.cfg.MacWebviewMd5URI
 	}
 
 	netmd5 := ""
@@ -148,9 +148,9 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 		exist = true
 	}
 
-	url := l.cfg.WindowsWebviewURL
+	url := l.cfg.WindowsWebviewURI
 	if !isWindows() {
-		url = l.cfg.MacWebviewURL
+		url = l.cfg.MacWebviewURI
 	}
 
 	tempPath := webviewPath + ".temp"

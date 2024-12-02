@@ -20,9 +20,13 @@ func httpClient() *http.Client {
 	}
 }
 
-func downloadString(url string) (string, error) {
+func downloadString(uri string) (string, error) {
+	if !strings.HasPrefix(uri, "http") {
+		return fileutil.ReadFileToString(uri)
+	}
+
 	client := httpClient()
-	resp, err := client.Get(url)
+	resp, err := client.Get(uri)
 	if err != nil {
 		return "", err
 	}
@@ -35,9 +39,13 @@ func downloadString(url string) (string, error) {
 	return string(data), nil
 }
 
-func downloadFile(url, path string) error {
+func downloadFile(uri, path string) error {
+	if !strings.HasPrefix(uri, "http") {
+		return fileutil.CopyFile(uri, path)
+	}
+
 	client := httpClient()
-	resp, err := client.Get(url)
+	resp, err := client.Get(uri)
 	if err != nil {
 		return err
 	}

@@ -33,4 +33,8 @@ if codesign --deep --force --verify --verbose --timestamp --sign "$cert" dist/$a
 
     # 压缩zip
     zip -r dist/$app_name.zip dist/$app_name
+
+    # 计算zip的md5 (使用macOS的md5命令)
+    echo $app_name.zip: > dist/$app_name.zip.md5
+    md5 dist/$app_name.zip > dist/$app_name.zip.md5
 fi

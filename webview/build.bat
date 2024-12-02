@@ -12,3 +12,9 @@ pip install pyinstaller
 
 REM Build
 python build_pyinstaller.py %*
+
+REM 查找dist目录下的.exe文件
+set exe_file=%dist_dir%\*.exe
+
+REM 计算exe的md5
+md5sum %exe_file% > %exe_file%.md5
