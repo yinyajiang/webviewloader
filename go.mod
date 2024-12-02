@@ -1,4 +1,4 @@
-module load_cookie
+module github.com/yinyajiang/load_cookie
 
 go 1.23.0
 
