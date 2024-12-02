@@ -2,11 +2,11 @@ package loadcookie
 
 import "fmt"
 
-func checkWebviewEnv(cfg Config) (webviewerPath string, err error) {
-	return "", nil
+func checkComponent() (err error) {
+	return nil
 }
 
-func installWebview(cfg Config) (webviewerPath string, err error) {
+func installComponent(...any) (err error) {
 	fmt.Print("macos should not install webview")
-	return "", nil
+	return nil
 }

@@ -7,10 +7,10 @@ import (
 )
 
 type Config struct {
-	WebviewURI     string
-	WebviewMd5URI  string
-	WebviewWorkDir string
-	ComposURI      string
+	WebviewURL             string
+	WebviewMd5URL          string
+	WebviewWorkDir         string
+	DependniesComponentURL string
 }
 
 type WebviewOptions struct {
@@ -37,14 +37,14 @@ func New(cfg Config) *Loader {
 }
 
 func (l *Loader) CheckEnv() (err error) {
-	l.webviewerPath, err = checkWebviewEnv(l.cfg)
+	err = checkComponent()
 	return
 }
 
-func (l *Loader) InstallWebview() (err error) {
-	err = l.CheckEnv()
+func (l *Loader) InstallEnv() (err error) {
+	err = checkComponent()
 	if err != nil {
-		_, err = installWebview(l.cfg)
+		err = installComponent(l.cfg.DependniesComponentURL)
 	}
 	return
 }

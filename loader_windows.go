@@ -1,9 +1,9 @@
 package loadcookie
 
-func checkWebviewEnv(cfg Config) (webviewerPath string, err error) {
-	return "", nil
+func checkComponent() (err error) {
+	return nil
 }
 
-func installWebview(cfg Config) (webviewerPath string, err error) {
-	return "", nil
+func installComponent(url string) (err error) {
+	return nil
 }
