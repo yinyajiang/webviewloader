@@ -110,6 +110,9 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 
 	defer func() {
 		if err == nil {
+			if !isWindows() {
+				path = filepath.Join(path, "Contents", "MacOS", l.cfg.WebviewName)
+			}
 			l.webviewPath = path
 		}
 	}()
@@ -117,6 +120,8 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 	webviewPath := filepath.Join(l.cfg.WebviewWorkDir, l.cfg.WebviewName)
 	if isWindows() {
 		webviewPath += ".exe"
+	} else {
+		webviewPath += ".app"
 	}
 
 	md5Url := l.cfg.WindowsWebviewMd5URL
@@ -147,7 +152,9 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 	if !isWindows() {
 		url = l.cfg.MacWebviewURL
 	}
-	err = downloadFile(url, webviewPath+".temp")
+
+	tempPath := webviewPath + ".temp"
+	err = downloadFile(url, tempPath)
 	if err != nil {
 		fmt.Printf("download webview failed: %v, %s\n", err, url)
 		if exist {
@@ -155,13 +162,26 @@ func (l *Loader) getWebviewPath() (path string, err error) {
 		}
 		return webviewPath, err
 	}
+
+	if !isWindows() {
+		exec.Command("xattr", "-cr", tempPath).Run()
+	}
+
 	if netmd5 == "" {
 		netmd5, _ = downloadString(md5Url)
 	}
 	if netmd5 != "" {
 		os.WriteFile(loacalMd5Path, []byte(netmd5), 0644)
 	}
-	os.Remove(webviewPath)
-	err = os.Rename(webviewPath+".temp", webviewPath)
+
+	if isWindows() {
+		os.Remove(webviewPath)
+		err = os.Rename(tempPath, webviewPath)
+	} else {
+		os.RemoveAll(webviewPath)
+		fileutil.UnZip(tempPath, filepath.Dir(webviewPath))
+		os.Chmod(webviewPath, 0755)
+	}
+
 	return webviewPath, err
 }

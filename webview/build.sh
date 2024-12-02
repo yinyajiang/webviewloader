@@ -18,7 +18,19 @@ python3 build_py2app.py py2app $@
 cert=$(python3 build_cert.py)
 
 # 获取dist的.app目录的名字
-app_name=$(ls dist | grep .app)
+app_name=$(ls dist | grep -E '\.app$')
+
+# Check if app was found
+if [ -z "$app_name" ]; then
+    echo "Error: No .app file found in dist directory"
+    exit 1
+fi
+
+echo "codesign $app_name ... ..."
+
 if codesign --deep --force --verify --verbose --timestamp --sign "$cert" dist/$app_name; then
     echo "codesign $app_name success"
+
+    # 压缩zip
+    zip -r dist/$app_name.zip dist/$app_name
 fi
