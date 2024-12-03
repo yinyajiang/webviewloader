@@ -37,6 +37,7 @@ func installComponent(url32, url64, cacheDir string) (err error) {
 			hasSleep = true
 		}
 		if hasSleep {
+			time.Sleep(time.Second * 2)
 			//另一个进程可能安装完成
 			err = checkComponent()
 			if err == nil {
