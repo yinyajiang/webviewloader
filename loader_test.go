@@ -40,26 +40,26 @@ func TestMain(m *testing.T) {
 	os.RemoveAll(filepath.Join(localDir, "Test"))
 
 	cfg := Config{
-		WindowsWebviewURI:               filepath.Join(localDir, "webview/dist/"+testName+".exe"),
-		WindowsWebviewMd5URI:            filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
-		WindowsDependniesComponentURI32: "",
-		WindowsDependniesComponentURI64: "",
+		WinWebviewAppURI:            filepath.Join(localDir, "webview/dist/"+testName+".exe"),
+		WinWebviewAppMd5URI:         filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
+		WinDependniesComponentURI32: "",
+		WinDependniesComponentURI64: "",
 
-		MacWebviewURI:    filepath.Join(localDir, "webview/dist/"+testName+".app.zip"),
-		MacWebviewMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".app.zip.md5"),
+		MacWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".app.zip"),
+		MacWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".app.zip.md5"),
 
-		WebviewWorkDir: filepath.Join(localDir, "Test"),
-		WebviewName:    testName,
+		WebviewAppWorkDir: filepath.Join(localDir, "Test"),
+		WebviewAppName:    testName,
 	}
 	l := New(cfg)
 
 	build := false
 	if isWindows() {
-		if !fileutil.IsExist(l.cfg.WindowsWebviewURI) {
+		if !fileutil.IsExist(l.cfg.WinWebviewAppURI) {
 			build = true
 		}
 	} else {
-		if !fileutil.IsExist(l.cfg.MacWebviewURI) {
+		if !fileutil.IsExist(l.cfg.MacWebviewAppURI) {
 			build = true
 		}
 	}

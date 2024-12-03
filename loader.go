@@ -13,16 +13,16 @@ import (
 )
 
 type Config struct {
-	WindowsWebviewURI               string
-	WindowsWebviewMd5URI            string
-	WindowsDependniesComponentURI32 string
-	WindowsDependniesComponentURI64 string
+	WinWebviewAppURI            string
+	WinWebviewAppMd5URI         string
+	WinDependniesComponentURI32 string
+	WinDependniesComponentURI64 string
 
-	MacWebviewURI    string
-	MacWebviewMd5URI string
+	MacWebviewAppURI    string
+	MacWebviewAppMd5URI string
 
-	WebviewWorkDir string
-	WebviewName    string
+	WebviewAppWorkDir string
+	WebviewAppName    string
 }
 
 type WebviewOptions struct {
@@ -47,17 +47,17 @@ type Loader struct {
 }
 
 func New(cfg Config) *Loader {
-	if cfg.WebviewName == "" {
-		cfg.WebviewName = "webview"
+	if cfg.WebviewAppName == "" {
+		cfg.WebviewAppName = "webview"
 	}
 	return &Loader{cfg: cfg}
 }
 
 func (l *Loader) HasMustCfg() bool {
 	if isWindows() {
-		return l.cfg.WindowsWebviewURI != ""
+		return l.cfg.WinWebviewAppURI != ""
 	}
-	return l.cfg.MacWebviewURI != ""
+	return l.cfg.MacWebviewAppURI != ""
 }
 
 func (l *Loader) CheckEnv() (err error) {
@@ -68,7 +68,7 @@ func (l *Loader) CheckEnv() (err error) {
 func (l *Loader) InstallEnv() (err error) {
 	err = checkComponent()
 	if err != nil && isWindows() {
-		err = installComponent(l.cfg.WindowsDependniesComponentURI32, l.cfg.WindowsDependniesComponentURI64, l.cfg.WebviewWorkDir)
+		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir)
 	}
 	return
 }
@@ -128,26 +128,26 @@ func (l *Loader) getWebviewPath() (path string, useLast bool, err error) {
 	defer func() {
 		if err == nil {
 			if !isWindows() {
-				path = filepath.Join(path, "Contents", "MacOS", l.cfg.WebviewName)
+				path = filepath.Join(path, "Contents", "MacOS", l.cfg.WebviewAppName)
 			}
 			l.webviewPath = path
 		}
 	}()
 
-	webviewPath := filepath.Join(l.cfg.WebviewWorkDir, l.cfg.WebviewName)
+	webviewPath := filepath.Join(l.cfg.WebviewAppWorkDir, l.cfg.WebviewAppName)
 	if isWindows() {
 		webviewPath += ".exe"
 	} else {
 		webviewPath += ".app"
 	}
 
-	md5Url := l.cfg.WindowsWebviewMd5URI
+	md5Url := l.cfg.WinWebviewAppMd5URI
 	if !isWindows() {
-		md5Url = l.cfg.MacWebviewMd5URI
+		md5Url = l.cfg.MacWebviewAppMd5URI
 	}
 
 	netmd5 := ""
-	loacalMd5Path := filepath.Join(l.cfg.WebviewWorkDir, l.cfg.WebviewName+".md5")
+	loacalMd5Path := filepath.Join(l.cfg.WebviewAppWorkDir, l.cfg.WebviewAppName+".md5")
 	exist := false
 	if fileutil.IsExist(webviewPath) {
 		if md5Url == "" {
@@ -165,9 +165,9 @@ func (l *Loader) getWebviewPath() (path string, useLast bool, err error) {
 		exist = true
 	}
 
-	url := l.cfg.WindowsWebviewURI
+	url := l.cfg.WinWebviewAppURI
 	if !isWindows() {
-		url = l.cfg.MacWebviewURI
+		url = l.cfg.MacWebviewAppURI
 	}
 
 	tempPath := webviewPath + ".temp"
