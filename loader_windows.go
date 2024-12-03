@@ -23,7 +23,7 @@ func checkComponent() (err error) {
 	return nil
 }
 
-func installComponent(url32, url64, cacheDir string) (err error) {
+func installComponent(url32, url64, cacheDir string, customDownloadFileFunc func(url string, path string) error) (err error) {
 	lock, err := newMutexLock("__install_webview2")
 	if err == nil {
 		hasSleep := false
@@ -65,7 +65,11 @@ func installComponent(url32, url64, cacheDir string) (err error) {
 
 	name := findName(url)
 	dest := filepath.Join(cacheDir, "webview2", name)
-	err = downloadFile(url, dest)
+	if customDownloadFileFunc != nil {
+		err = customDownloadFileFunc(url, dest)
+	} else {
+		err = downloadFile(url, dest)
+	}
 	if err != nil {
 		return err
 	}

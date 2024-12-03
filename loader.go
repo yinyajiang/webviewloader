@@ -24,6 +24,8 @@ type Config struct {
 
 	WebviewAppWorkDir string
 	WebviewAppName    string
+
+	CustomDownloadFileFunc func(url string, path string) error `json:"-"`
 }
 
 type WebviewOptions struct {
@@ -142,7 +144,7 @@ func (l *Loader) GetWebviewPath() (path string, err error) {
 func (l *Loader) installComponent() (err error) {
 	err = checkComponent()
 	if err != nil && isWindows() {
-		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir)
+		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir, l.cfg.CustomDownloadFileFunc)
 	}
 	return
 }
