@@ -239,6 +239,7 @@ func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, er
 		os.RemoveAll(webviewPath)
 		fileutil.UnZip(tempPath, filepath.Dir(webviewPath))
 		os.Chmod(webviewPath, 0755)
+		os.Remove(tempPath)
 	}
 
 	return webviewPath, false, err
