@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/duke-git/lancet/v2/fileutil"
 )
@@ -64,21 +65,37 @@ func (l *Loader) HasMustCfg() bool {
 	return l.cfg.MacWebviewAppURI != ""
 }
 
-func (l *Loader) CheckEnv() (err error) {
+func (l *Loader) CheckEnv(checkUpdate bool) (err error) {
 	err = checkComponent()
-	return
-}
-
-func (l *Loader) InstallEnv() (err error) {
-	err = checkComponent()
-	if err != nil && isWindows() {
-		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir)
+	if err == nil {
+		_, _, err = l.getWebviewPath(checkUpdate)
 	}
 	return
 }
 
+func (l *Loader) InstallEnv(checkUpdate bool) (err error) {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	var componentErr error
+	var webviewErr error
+	go func() {
+		defer wg.Done()
+		componentErr = l.installComponent()
+	}()
+	go func() {
+		defer wg.Done()
+		webviewErr = l.installWebview(checkUpdate)
+	}()
+	wg.Wait()
+	if componentErr != nil {
+		return componentErr
+	}
+	return webviewErr
+}
+
 func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
-	err = l.CheckEnv()
+	err = l.CheckEnv(false)
 	if err != nil {
 		return
 	}
@@ -118,11 +135,29 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 }
 
 func (l *Loader) GetWebviewPath() (path string, err error) {
-	path, _, err = l.getWebviewPath()
+	path, _, err = l.getWebviewPath(false)
 	return
 }
 
-func (l *Loader) getWebviewPath() (path string, useLast bool, err error) {
+func (l *Loader) installComponent() (err error) {
+	err = checkComponent()
+	if err != nil && isWindows() {
+		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir)
+	}
+	return
+}
+
+func (l *Loader) installWebview(checkUpdate bool) (err error) {
+	releaser, err := mutexAcquire("__install_"+strings.ToLower(l.cfg.WebviewAppName), time.Minute*10)
+	if err != nil {
+		return
+	}
+	defer mutexRelease(releaser)
+	_, _, err = l.getWebviewPath(checkUpdate)
+	return
+}
+
+func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.webviewPath != "" {
@@ -154,7 +189,7 @@ func (l *Loader) getWebviewPath() (path string, useLast bool, err error) {
 	loacalMd5Path := filepath.Join(l.cfg.WebviewAppWorkDir, l.cfg.WebviewAppName+".md5")
 	exist := false
 	if fileutil.IsExist(webviewPath) {
-		if md5Url == "" {
+		if md5Url == "" || !checkUpdate {
 			return webviewPath, true, nil
 		}
 		netmd5, err = downloadString(md5Url)

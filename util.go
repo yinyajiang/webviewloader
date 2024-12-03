@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/duke-git/lancet/v2/fileutil"
+	"github.com/juju/mutex"
 )
 
 func httpClient() *http.Client {
@@ -80,4 +82,32 @@ func findBaseName(str string) string {
 		return name
 	}
 	return name[:dotIndex]
+}
+
+type Clock struct {
+}
+
+func (f *Clock) After(t time.Duration) <-chan time.Time {
+	return time.After(t)
+}
+func (f *Clock) Now() time.Time {
+	return time.Now()
+}
+func mutexAcquire(name string, timeout time.Duration) (mutex.Releaser, error) {
+	spec := mutex.Spec{
+		Name:    name,
+		Clock:   &Clock{},
+		Delay:   time.Millisecond * 300,
+		Timeout: timeout,
+	}
+	return mutex.Acquire(spec)
+}
+
+func mutexRelease(releaser mutex.Releaser) {
+	defer func() {
+		recover()
+	}()
+	if releaser != nil {
+		releaser.Release()
+	}
 }

@@ -67,10 +67,10 @@ func TestMain(m *testing.T) {
 		TestBuildWebview(m)
 	}
 
-	if err := l.InstallEnv(); err != nil {
+	if err := l.InstallEnv(true); err != nil {
 		m.Fatal(err)
 	}
-	firstPath, useLast, err := l.getWebviewPath()
+	firstPath, useLast, err := l.getWebviewPath(true)
 	if err != nil {
 		m.Fatal(err)
 	}
@@ -87,7 +87,7 @@ func TestMain(m *testing.T) {
 	}
 
 	l2 := New(cfg)
-	secondPath, useLast, err := l2.getWebviewPath()
+	secondPath, useLast, err := l2.getWebviewPath(true)
 	if err != nil {
 		m.Fatal(err)
 	}
