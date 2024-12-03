@@ -48,7 +48,11 @@ type Loader struct {
 
 func New(cfg Config) *Loader {
 	if cfg.WebviewAppName == "" {
-		cfg.WebviewAppName = "webview"
+		if isWindows() {
+			cfg.WebviewAppName = findBaseName(cfg.WinWebviewAppURI)
+		} else {
+			cfg.WebviewAppName = findBaseName(cfg.MacWebviewAppURI)
+		}
 	}
 	return &Loader{cfg: cfg}
 }

@@ -66,3 +66,18 @@ func downloadFile(uri, path string) error {
 func isWindows() bool {
 	return strings.EqualFold(runtime.GOOS, "windows")
 }
+
+func findName(str string) string {
+	str = strings.ReplaceAll(str, "\\", "/")
+	arr := strings.Split(str, "/")
+	return arr[len(arr)-1]
+}
+
+func findBaseName(str string) string {
+	name := findName(str)
+	dotIndex := strings.Index(name, ".")
+	if dotIndex == -1 {
+		return name
+	}
+	return name[:dotIndex]
+}

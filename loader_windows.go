@@ -63,8 +63,7 @@ func installComponent(url32, url64, cacheDir string) (err error) {
 		}
 	}
 
-	arr := strings.Split(url, "/")
-	name := arr[len(arr)-1]
+	name := findName(url)
 	dest := filepath.Join(cacheDir, "webview2", name)
 	err = downloadFile(url, dest)
 	if err != nil {
