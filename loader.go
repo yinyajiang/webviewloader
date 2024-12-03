@@ -53,6 +53,13 @@ func New(cfg Config) *Loader {
 	return &Loader{cfg: cfg}
 }
 
+func (l *Loader) HasMustCfg() bool {
+	if isWindows() {
+		return l.cfg.WindowsWebviewURI != ""
+	}
+	return l.cfg.MacWebviewURI != ""
+}
+
 func (l *Loader) CheckEnv() (err error) {
 	err = checkComponent()
 	return
