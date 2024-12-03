@@ -14,39 +14,39 @@ def get_cookies_nm(window):
         nm[k] = v
     return nm
 
-def get_info(window, ua=None, wait_elements=None, wait_cookies=None):
-    wait_info(window, wait_elements, wait_cookies)
-
+def get_info(window, ua=None):
     info = {
         "ua": ua,
         "cookies": get_cookies_nm(window)
     }
-    print(json.dumps(info))
+    print(json.dumps(info)+"\n", flush=True)
     return True
 
 
-def wait_info(window, wait_elements=None, wait_cookies=None):
+def is_ready(window, wait_elements=None, wait_cookies=None):
     # wait for elements
     if wait_elements:   
         for name in wait_elements:
             el = window.dom.get_element(name)
             if not el:
-                return None
+                return False
         
     time.sleep(1)
     if wait_cookies:
-        cookies = window.get_cookies()    
+        cookies = window.get_cookies()
         for name in wait_cookies:
             if not any(name+"=" in c.output().strip() for c in cookies):
-                return None
+                return False
+    return True
 
 
-def hook(window, ua, element_names, cookie_names):
+def hook(window, ua, wait_elements, wait_cookies):
     def timer_func():
-        info = get_info(window, ua, element_names, cookie_names)
-        if info:
-            window.destroy()
-            return
+        if is_ready(window, wait_elements, wait_cookies):
+            info = get_info(window, ua)
+            if info:
+                window.destroy()
+                return
         start_timer()
         
     def start_timer():
@@ -79,4 +79,4 @@ if __name__ == '__main__':
         title = os.path.basename(sys.argv[0]).split(".")[0]
 
     window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden)
-    webview.start(lambda w: hook(w, ua=args.ua, element_names=args.elements, cookie_names=args.cookies), window, user_agent=args.ua)
+    webview.start(lambda w: hook(w, ua=args.ua, wait_elements=args.elements, wait_cookies=args.cookies), window, user_agent=args.ua)
