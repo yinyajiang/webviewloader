@@ -15,10 +15,12 @@ import (
 )
 
 type Config struct {
-	WinWebviewAppURI            string
-	WinWebviewAppMd5URI         string
-	WinDependniesComponentURI32 string
-	WinDependniesComponentURI64 string
+	WinWebviewAppURI                 string
+	WinWebviewAppMd5URI              string
+	WinDependniesComponentURI32      string
+	WinDependniesComponentURI64      string
+	WinDependniesComponentLowerURI32 string
+	WinDependniesComponentLowerURI64 string
 
 	MacWebviewAppURI    string
 	MacWebviewAppMd5URI string
@@ -145,7 +147,13 @@ func (l *Loader) GetWebviewPath() (path string, err error) {
 func (l *Loader) installComponent() (err error) {
 	err = checkComponent()
 	if err != nil && isWindows() {
-		err = installComponent(l.cfg.WinDependniesComponentURI32, l.cfg.WinDependniesComponentURI64, l.cfg.WebviewAppWorkDir, l.cfg.CustomDownloadFileFunc)
+		err = installComponent(
+			l.cfg.WinDependniesComponentLowerURI32,
+			l.cfg.WinDependniesComponentURI32,
+			l.cfg.WinDependniesComponentLowerURI64,
+			l.cfg.WinDependniesComponentURI64,
+			l.cfg.WebviewAppWorkDir,
+			l.cfg.CustomDownloadFileFunc)
 	}
 	return
 }
