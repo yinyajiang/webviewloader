@@ -94,6 +94,7 @@ func (f *Clock) Now() time.Time {
 	return time.Now()
 }
 func mutexAcquire(name string, timeout time.Duration) (mutex.Releaser, error) {
+	name = replaceMutexName(name)
 	spec := mutex.Spec{
 		Name:    name,
 		Clock:   &Clock{},
@@ -110,4 +111,15 @@ func mutexRelease(releaser mutex.Releaser) {
 	if releaser != nil {
 		releaser.Release()
 	}
+}
+
+func replaceMutexName(name string) string {
+	name = strings.TrimSpace(strings.ToLower(name))
+	for k := range map[string]struct{}{
+		"_": {},
+		".": {},
+	} {
+		name = strings.ReplaceAll(name, k, "-")
+	}
+	return name
 }

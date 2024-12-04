@@ -161,7 +161,7 @@ func (l *Loader) installWebview(checkUpdate bool) (err error) {
 }
 
 func (l *Loader) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
-	releaser, err = mutexAcquire("g_install_"+strings.ToLower(l.cfg.WebviewAppName), time.Minute*10)
+	releaser, err = mutexAcquire("install-"+l.cfg.WebviewAppName, time.Minute*10)
 	return releaser, err
 }
 

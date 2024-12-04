@@ -11,7 +11,7 @@ import (
 
 const testName = "TEST_WEBVIEW"
 
-func TestBuildWebview(t *testing.T) {
+func buildWebview(t *testing.T) {
 	oldDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -55,20 +55,18 @@ func TestMain(m *testing.T) {
 
 	build := false
 	if isWindows() {
+		m.Logf("win uri: %s", l.cfg.WinWebviewAppURI)
 		if !fileutil.IsExist(l.cfg.WinWebviewAppURI) {
 			build = true
 		}
 	} else {
+		m.Logf("mac uri: %s", l.cfg.MacWebviewAppURI)
 		if !fileutil.IsExist(l.cfg.MacWebviewAppURI) {
 			build = true
 		}
 	}
 	if build {
-		TestBuildWebview(m)
-	}
-
-	if err := l.InstallEnv(true); err != nil {
-		m.Fatal(err)
+		buildWebview(m)
 	}
 	firstPath, useLast, err := l.getWebviewPath(true)
 	if err != nil {
@@ -76,6 +74,9 @@ func TestMain(m *testing.T) {
 	}
 	if useLast {
 		m.Fatal("should not use last")
+	}
+	if err := l.InstallEnv(true); err != nil {
+		m.Fatal(err)
 	}
 
 	info, err := l.Start("https://www.baidu.com", WebviewOptions{})

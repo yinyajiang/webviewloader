@@ -24,7 +24,7 @@ func checkComponent() (err error) {
 }
 
 func installComponent(url32, url64, cacheDir string, customDownloadFileFunc func(url string, path string) error) (err error) {
-	lock, err := newMutexLock("__install_webview2")
+	lock, err := newMutexLock(replaceMutexName("installwebview2"))
 	if err == nil {
 		hasSleep := false
 		for {
