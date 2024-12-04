@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/duke-git/lancet/v2/fileutil"
+	"github.com/juju/mutex"
 )
 
 type Config struct {
@@ -150,13 +151,18 @@ func (l *Loader) installComponent() (err error) {
 }
 
 func (l *Loader) installWebview(checkUpdate bool) (err error) {
-	releaser, err := mutexAcquire("__install_"+strings.ToLower(l.cfg.WebviewAppName), time.Minute*10)
+	releaser, err := l.getGlobalMutexLock()
 	if err != nil {
 		return
 	}
 	defer mutexRelease(releaser)
 	_, _, err = l.getWebviewPath(checkUpdate)
 	return
+}
+
+func (l *Loader) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
+	releaser, err = mutexAcquire("g_install_"+strings.ToLower(l.cfg.WebviewAppName), time.Minute*10)
+	return releaser, err
 }
 
 func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {

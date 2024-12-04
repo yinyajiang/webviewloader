@@ -97,4 +97,10 @@ func TestMain(m *testing.T) {
 	if firstPath != secondPath {
 		m.Fatal("path not equal")
 	}
+
+	releaser, err := l2.getGlobalMutexLock()
+	if err != nil {
+		m.Fatal(err)
+	}
+	releaser.Release()
 }
