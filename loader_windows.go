@@ -2,6 +2,7 @@ package webviewloader
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -95,6 +96,7 @@ func installComponent(lowerurl32, url32, lowerurl64, url64, cacheDir string, cus
 	for count < 5 {
 		e := checkComponent()
 		if e == nil {
+			os.Remove(dest)
 			return nil
 		}
 		time.Sleep(time.Second * 1)
