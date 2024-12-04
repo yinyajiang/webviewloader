@@ -45,7 +45,6 @@ func installComponent(lowerurl32, url32, lowerurl64, url64, cacheDir string, cus
 				return nil
 			}
 		}
-		return nil
 	}
 
 	if lowerurl32 == "" {
