@@ -10,6 +10,7 @@ import (
 	"github.com/elastic/go-windows"
 	"github.com/wailsapp/go-webview2/webviewloader"
 
+	"github.com/winlabs/gowin32"
 	xwindows "golang.org/x/sys/windows"
 )
 
@@ -47,19 +48,35 @@ func installComponent(lowerurl32, url32, lowerurl64, url64, cacheDir string, cus
 		return nil
 	}
 
+	if lowerurl32 == "" {
+		lowerurl32 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX86.exe"
+	}
 	if url32 == "" {
-		url32 = "https://github.com/yinyajiang/load_cookie/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX86.exe"
+		url32 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX86.exe"
+	}
+	if lowerurl64 == "" {
+		lowerurl64 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX64.exe"
 	}
 	if url64 == "" {
-		url64 = "https://github.com/yinyajiang/load_cookie/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
+		url64 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
 	}
 
 	url := url64
-	info, err := windows.GetNativeSystemInfo()
-	if err == nil {
-		arch := info.ProcessorArchitecture
-		if arch != 6 && arch != 9 && arch != 12 {
+	if isBit32System() {
+		if isWindow10OrGreater() {
 			url = url32
+			fmt.Println("use 32bit webview2")
+		} else {
+			url = lowerurl32
+			fmt.Println("use lower 32bit webview2")
+		}
+	} else {
+		if isWindow10OrGreater() {
+			url = url64
+			fmt.Println("use 64bit webview2")
+		} else {
+			url = lowerurl64
+			fmt.Println("use lower 64bit webview2")
 		}
 	}
 
@@ -127,4 +144,23 @@ func (m *mutexLock) TryLock() error {
 
 func (m *mutexLock) Unlock() error {
 	return xwindows.ReleaseMutex(m.mutex)
+}
+
+func isWindow10OrGreater() bool {
+	ok, err := gowin32.IsWindows10OrGreater()
+	if err != nil {
+		return false
+	}
+	return ok
+}
+
+func isBit32System() bool {
+	info, err := windows.GetNativeSystemInfo()
+	if err == nil {
+		arch := info.ProcessorArchitecture
+		if arch != 6 && arch != 9 && arch != 12 {
+			return true
+		}
+	}
+	return false
 }
