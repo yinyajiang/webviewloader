@@ -1,12 +1,24 @@
 from setuptools import setup
 import argparse
 import sys
+import requests
+import os
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
 parser = argparse.ArgumentParser(description='Command Line Parser')
 parser.add_argument('--name', default='load_cookie')
 parser.add_argument('--icon', default='')
 parser.add_argument('*')
 args = parser.parse_args()
+if args.icon and args.icon.startswith('http'):
+    dest = os.path.join(current_dir, "icon.ico")
+    response = requests.get(args.icon)
+    with open(dest, 'wb') as f:
+        f.write(response.content)
+    args.icon = dest
+
+
+# 删除参数，否则失败
 for arg in sys.argv:
     if arg in ['--icon', '--name']:
         index = sys.argv.index(arg)
