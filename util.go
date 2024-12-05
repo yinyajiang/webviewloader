@@ -123,3 +123,7 @@ func replaceMutexName(name string) string {
 	}
 	return name
 }
+
+type selectURISt struct {
+	x64, x64lower, x86, x86lower string
+}

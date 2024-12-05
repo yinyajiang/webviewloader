@@ -40,10 +40,8 @@ func TestMain(m *testing.T) {
 	os.RemoveAll(filepath.Join(localDir, "Test"))
 
 	cfg := Config{
-		WinWebviewAppURI:            filepath.Join(localDir, "webview/dist/"+testName+".exe"),
-		WinWebviewAppMd5URI:         filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
-		WinDependniesComponentURI32: "",
-		WinDependniesComponentURI64: "",
+		WinWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".exe"),
+		WinWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
 
 		MacWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".app.zip"),
 		MacWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".app.zip.md5"),

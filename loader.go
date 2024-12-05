@@ -15,12 +15,20 @@ import (
 )
 
 type Config struct {
-	WinWebviewAppURI                 string
-	WinWebviewAppMd5URI              string
-	WinDependniesComponentURI32      string
-	WinDependniesComponentURI64      string
-	WinDependniesComponentLowerURI32 string
-	WinDependniesComponentLowerURI64 string
+	WinWebviewAppURI       string
+	WinWebviewAppMd5URI    string
+	WinWebviewAppURIx86    string
+	WinWebviewAppMd5URIx86 string
+
+	WinWebviewAppLowerURI       string
+	WinWebviewAppLowerMd5URI    string
+	WinWebviewAppLowerURIx86    string
+	WinWebviewAppLowerMd5URIx86 string
+
+	WinDependniesComponentURI         string
+	WinDependniesComponentURIx86      string
+	WinDependniesComponentLowerURI    string
+	WinDependniesComponentLowerURIx86 string
 
 	MacWebviewAppURI    string
 	MacWebviewAppMd5URI string
@@ -59,6 +67,30 @@ func New(cfg Config) *Loader {
 		} else {
 			cfg.WebviewAppName = findBaseName(cfg.MacWebviewAppURI)
 		}
+	}
+	if cfg.WinDependniesComponentLowerURIx86 == "" {
+		cfg.WinDependniesComponentLowerURIx86 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX86.exe"
+	}
+	if cfg.WinDependniesComponentURIx86 == "" {
+		cfg.WinDependniesComponentURIx86 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX86.exe"
+	}
+	if cfg.WinDependniesComponentLowerURI == "" {
+		cfg.WinDependniesComponentLowerURI = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX64.exe"
+	}
+	if cfg.WinDependniesComponentURI == "" {
+		cfg.WinDependniesComponentURI = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
+	}
+	if cfg.WinWebviewAppLowerURI == "" {
+		cfg.WinWebviewAppLowerURI = cfg.WinWebviewAppURI
+	}
+	if cfg.WinWebviewAppLowerMd5URI == "" {
+		cfg.WinWebviewAppLowerMd5URI = cfg.WinWebviewAppMd5URI
+	}
+	if cfg.WinWebviewAppLowerURIx86 == "" {
+		cfg.WinWebviewAppLowerURIx86 = cfg.WinWebviewAppURIx86
+	}
+	if cfg.WinWebviewAppLowerMd5URIx86 == "" {
+		cfg.WinWebviewAppLowerMd5URIx86 = cfg.WinWebviewAppMd5URIx86
 	}
 	return &Loader{cfg: cfg}
 }
@@ -147,13 +179,7 @@ func (l *Loader) GetWebviewPath() (path string, err error) {
 func (l *Loader) installComponent() (err error) {
 	err = checkComponent()
 	if err != nil && isWindows() {
-		err = installComponent(
-			l.cfg.WinDependniesComponentLowerURI32,
-			l.cfg.WinDependniesComponentURI32,
-			l.cfg.WinDependniesComponentLowerURI64,
-			l.cfg.WinDependniesComponentURI64,
-			l.cfg.WebviewAppWorkDir,
-			l.cfg.CustomDownloadFileFunc)
+		err = installComponent(l.cfg)
 	}
 	return
 }
@@ -196,9 +222,14 @@ func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, er
 		webviewPath += ".app"
 	}
 
-	md5Url := l.cfg.WinWebviewAppMd5URI
-	if !isWindows() {
-		md5Url = l.cfg.MacWebviewAppMd5URI
+	md5Url := l.cfg.MacWebviewAppMd5URI
+	if isWindows() {
+		md5Url = selectURI(selectURISt{
+			x64:      l.cfg.WinWebviewAppMd5URI,
+			x64lower: l.cfg.WinWebviewAppLowerMd5URI,
+			x86:      l.cfg.WinWebviewAppMd5URIx86,
+			x86lower: l.cfg.WinWebviewAppLowerMd5URIx86,
+		})
 	}
 
 	netmd5 := ""
@@ -220,12 +251,18 @@ func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, er
 		exist = true
 	}
 
-	url := l.cfg.WinWebviewAppURI
-	if !isWindows() {
-		url = l.cfg.MacWebviewAppURI
+	url := l.cfg.MacWebviewAppURI
+	if isWindows() {
+		url = selectURI(selectURISt{
+			x64:      l.cfg.WinWebviewAppURI,
+			x64lower: l.cfg.WinWebviewAppLowerURI,
+			x86:      l.cfg.WinWebviewAppURIx86,
+			x86lower: l.cfg.WinWebviewAppLowerURIx86,
+		})
 	}
 
 	tempPath := webviewPath + ".temp"
+	os.Remove(tempPath)
 	err = downloadFile(url, tempPath)
 	if err != nil {
 		fmt.Printf("download webview failed: %v, %s\n", err, url)

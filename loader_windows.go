@@ -25,7 +25,7 @@ func checkComponent() (err error) {
 	return nil
 }
 
-func installComponent(lowerurl32, url32, lowerurl64, url64, cacheDir string, customDownloadFileFunc func(url string, path string) error) (err error) {
+func installComponent(cfg Config) (err error) {
 	lock, err := newMutexLock(replaceMutexName("installwebview2"))
 	if err == nil {
 		hasSleep := false
@@ -48,42 +48,16 @@ func installComponent(lowerurl32, url32, lowerurl64, url64, cacheDir string, cus
 		}
 	}
 
-	if lowerurl32 == "" {
-		lowerurl32 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX86.exe"
-	}
-	if url32 == "" {
-		url32 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX86.exe"
-	}
-	if lowerurl64 == "" {
-		lowerurl64 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerLowX64.exe"
-	}
-	if url64 == "" {
-		url64 = "https://github.com/yinyajiang/webviewloader/releases/download/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
-	}
-
-	url := url64
-	if isBit32System() {
-		if isWindow10OrGreater() {
-			url = url32
-			fmt.Println("use 32bit webview2")
-		} else {
-			url = lowerurl32
-			fmt.Println("use lower 32bit webview2")
-		}
-	} else {
-		if isWindow10OrGreater() {
-			url = url64
-			fmt.Println("use 64bit webview2")
-		} else {
-			url = lowerurl64
-			fmt.Println("use lower 64bit webview2")
-		}
-	}
-
+	url := selectURI(selectURISt{
+		x64:      cfg.WinDependniesComponentURI,
+		x64lower: cfg.WinDependniesComponentLowerURI,
+		x86:      cfg.WinDependniesComponentURIx86,
+		x86lower: cfg.WinDependniesComponentLowerURIx86,
+	})
 	name := findName(url)
-	dest := filepath.Join(cacheDir, "webview2", name)
-	if customDownloadFileFunc != nil {
-		err = customDownloadFileFunc(url, dest)
+	dest := filepath.Join(cfg.WebviewAppWorkDir, "webview2", name)
+	if cfg.CustomDownloadFileFunc != nil {
+		err = cfg.CustomDownloadFileFunc(url, dest)
 	} else {
 		err = downloadFile(url, dest)
 	}
@@ -164,4 +138,28 @@ func isBit32System() bool {
 		}
 	}
 	return false
+}
+
+type selectURISt struct {
+	x64, x64lower, x86, x86lower string
+}
+
+func selectURI(st selectURISt) string {
+	if isBit32System() {
+		if isWindow10OrGreater() {
+			fmt.Println("use 32bit:", st.x86)
+			return st.x86
+		} else {
+			fmt.Println("use lower 32bit: ", st.x86lower)
+			return st.x86lower
+		}
+	} else {
+		if isWindow10OrGreater() {
+			fmt.Println("use 64bit:", st.x64)
+			return st.x64
+		} else {
+			fmt.Println("use lower 64bit:", st.x64lower)
+			return st.x64lower
+		}
+	}
 }
