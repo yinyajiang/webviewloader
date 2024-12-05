@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # 判断是否存在虚拟环境
-if [ ! -d "py2app_venv" ]; then
+if [ ! -f "py2app_venv/bin/python3" ]; then
     # 创建虚拟环境
     python3 -m venv py2app_venv
 fi
 
 # 激活虚拟环境
 source py2app_venv/bin/activate
+
+python3 -V
 
 pip3 install setuptools==70.3.0
 pip3 install -r requirements.txt
