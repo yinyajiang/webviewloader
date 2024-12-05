@@ -140,10 +140,6 @@ func isBit32System() bool {
 	return false
 }
 
-type selectURISt struct {
-	x64, x64lower, x86, x86lower string
-}
-
 func selectURI(st selectURISt) string {
 	if isBit32System() {
 		if isWindow10OrGreater() {
