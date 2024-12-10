@@ -7,7 +7,6 @@ require (
 	github.com/elastic/go-windows v1.0.2
 	github.com/juju/mutex v0.0.0-20180619145857-d21b13acf4bf
 	github.com/wailsapp/go-webview2 v1.0.18
-	github.com/winlabs/gowin32 v0.0.0-20240930213947-f504d7e14639
 	golang.org/x/sys v0.27.0
 )
 

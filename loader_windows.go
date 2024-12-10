@@ -11,7 +11,6 @@ import (
 	"github.com/elastic/go-windows"
 	"github.com/wailsapp/go-webview2/webviewloader"
 
-	"github.com/winlabs/gowin32"
 	xwindows "golang.org/x/sys/windows"
 )
 
@@ -121,14 +120,6 @@ func (m *mutexLock) Unlock() error {
 	return xwindows.ReleaseMutex(m.mutex)
 }
 
-func isWindow10OrGreater() bool {
-	ok, err := gowin32.IsWindows10OrGreater()
-	if err != nil {
-		return false
-	}
-	return ok
-}
-
 func isBit32System() bool {
 	info, err := windows.GetNativeSystemInfo()
 	if err == nil {
@@ -142,7 +133,7 @@ func isBit32System() bool {
 
 func selectURI(st selectURISt) string {
 	if isBit32System() {
-		if isWindow10OrGreater() {
+		if IsWindows10OrGreater() {
 			fmt.Println("use 32bit:", st.x86)
 			return st.x86
 		} else {
@@ -150,7 +141,7 @@ func selectURI(st selectURISt) string {
 			return st.x86lower
 		}
 	} else {
-		if isWindow10OrGreater() {
+		if IsWindows10OrGreater() {
 			fmt.Println("use 64bit:", st.x64)
 			return st.x64
 		} else {
