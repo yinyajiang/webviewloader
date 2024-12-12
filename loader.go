@@ -164,10 +164,13 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	}
 	c := exec.Command(webviewPath, args...)
 	stdout, err := c.Output()
-	if err != nil {
-		return
+	if len(stdout) > 0 {
+		obj, e := findJsonObject(stdout)
+		if e == nil {
+			err = json.Unmarshal(obj, &result)
+			return
+		}
 	}
-	err = json.Unmarshal(stdout, &result)
 	return
 }
 

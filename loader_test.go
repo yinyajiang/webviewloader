@@ -1,6 +1,7 @@
 package webviewloader
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,7 +33,74 @@ func buildWebview(t *testing.T) {
 	os.Chdir(oldDir)
 }
 
+func testFindjson(m *testing.T) {
+	obj, e := findJsonObject([]byte(`
+testestetsetetsgadsg
+{
+    "_id": "675a941634445a1baf73aff4",
+    "index": 0,
+    "guid": "e45351cc-1f0f-49e7-9f53-8c730da216a4",
+    "isActive": true,
+    "balance": "$3,813.09",
+    "picture": "http://placehold.it/32x32",
+    "age": 20,
+    "eyeColor": "brown",
+    "name": "Monroe Church",
+    "gender": "male",
+    "company": "DIGIFAD",
+    "email": "monroechurch@digifad.com",
+    "phone": "+1 (857) 567-3283",
+    "address": "504 Thatford Avenue, Newcastle, West Virginia, 8256",
+    "about": "Adipisicing minim ullamco culpa exercitation dolor. Fugiat nisi proident in minim proident qui enim ullamco voluptate qui mollit. Ut incididunt laborum duis est ipsum ad ex voluptate non. Proident laboris quis dolore qui elit consequat est cupidatat aute veniam aliquip.\r\n",
+    "registered": "2015-04-07T12:01:11 -08:00",
+    "latitude": 77.047377,
+    "longitude": -101.104828,
+    "tags": [
+      "commodo",
+      "esse",
+      "commodo",
+      "amet",
+      "reprehenderit",
+      "cillum",
+      "laborum"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Peggy Ewing"
+      },
+      {
+        "id": 1,
+        "name": "Alana Gonzalez"
+      },
+      {
+        "id": 2,
+        "name": "Blanca Joyce"
+      }
+    ],
+    "greeting": "Hello, Monroe Church! You have 7 unread messages.",
+    "favoriteFruit": "strawberry"
+  }
+testestetsetetsgadsgsgasdg
+	`))
+	if e != nil {
+		m.Fatal(e)
+	}
+	var result map[string]interface{}
+	e = json.Unmarshal(obj, &result)
+	if e != nil {
+		m.Fatal(e)
+	}
+	m.Logf("obj: %v", result)
+	if len(result) == 0 {
+		m.Fatal("obj is empty")
+	}
+
+}
+
 func TestMain(m *testing.T) {
+	testFindjson(m)
+
 	localDir, err := os.Getwd()
 	if err != nil {
 		m.Fatal(err)

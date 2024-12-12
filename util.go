@@ -2,6 +2,7 @@ package webviewloader
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -122,6 +123,27 @@ func replaceMutexName(name string) string {
 		name = strings.ReplaceAll(name, k, "-")
 	}
 	return name
+}
+
+func findJsonObject(data_ []byte) ([]byte, error) {
+	data := string(data_)
+	count := 0
+
+	start := 0
+	for i, c := range data {
+		if c == '{' {
+			count++
+			if count == 1 {
+				start = i
+			}
+		} else if c == '}' {
+			count--
+			if count == 0 {
+				return []byte(data[start : i+1]), nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("not found")
 }
 
 type selectURISt struct {
