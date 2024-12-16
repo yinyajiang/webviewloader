@@ -27,8 +27,11 @@ def is_ready(window, wait_elements=None, wait_cookies=None):
     # wait for elements
     if wait_elements:   
         for name in wait_elements:
-            el = window.dom.get_element(name)
-            if not el:
+            try:
+                el = window.dom.get_element(name)
+                if not el:
+                    return False
+            except Exception:
                 return False
         
     time.sleep(1)
