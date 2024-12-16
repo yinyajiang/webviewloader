@@ -166,6 +166,7 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	if err != nil {
 		return
 	}
+	fmt.Printf("webview cmd: %s %v\n", webviewPath, args)
 	c := exec.Command(webviewPath, args...)
 	stdout, err := c.Output()
 	if len(stdout) > 0 {
