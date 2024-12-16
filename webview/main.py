@@ -56,11 +56,14 @@ def hook(window, ua, wait_elements, wait_cookies):
 
 
 if __name__ == '__main__':
+    isWin = sys.platform.lower().startswith('win')
+
     parser = argparse.ArgumentParser(description='Cookie loader with customizable parameters')
     parser.add_argument('url', help='Target URL')
     parser.add_argument('--title', default='',
                         help='Window title')
-    parser.add_argument('--ua', default='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    parser.add_argument('--ua', default='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' if 
+                        isWin else 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15',
                         help='User agent string')
     parser.add_argument('--elements', nargs='+', default=[],
                         help='Element names to search for (can specify multiple)')
