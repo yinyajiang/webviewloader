@@ -158,6 +158,10 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	if opt.Hidden {
 		args = append(args, "--hidden")
 	}
+	if opt.UA != "" {
+		args = append(args, "--ua", opt.UA)
+	}
+
 	webviewPath, err := l.GetWebviewPath()
 	if err != nil {
 		return
