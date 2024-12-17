@@ -11,6 +11,7 @@ CALL pyinstaller_venv%suffix%\Scripts\activate
 
 pip install -r requirements.txt
 pip install pyinstaller
+pip3 install requests
 
 REM Build
 python build_pyinstaller.py %*
