@@ -44,4 +44,6 @@ pyinstaller_args = [
 
 PyInstaller.__main__.run(pyinstaller_args)
 
-shutil.rmtree(os.path.join(current_dir, "dist", args.name))
+_tmp = os.path.join(current_dir, "dist", args.name)
+if os.path.exists(_tmp):
+    shutil.rmtree(_tmp)
