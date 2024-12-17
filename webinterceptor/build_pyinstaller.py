@@ -39,8 +39,10 @@ pyinstaller_args = [
 ] if not iswin else [
     
 ]) + ([
-    f"--icon={args.icon}"
-] if args.icon else [])
+    f"--icon={args.icon}",
+] if args.icon else []) + ([
+    f"--add-data={args.icon};.",
+] if args.icon and iswin else [])
 
 PyInstaller.__main__.run(pyinstaller_args)
 

@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWid
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineUrlRequestInterceptor, QWebEngineSettings
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtCore import QUrl, Qt
+from PyQt6.QtGui import QIcon
 import sys
 import json
 import argparse
@@ -122,12 +123,16 @@ if __name__ == '__main__':
                         help='Window width')
     parser.add_argument('--height', default=768, type=int,
                         help='Window height')
+    parser.add_argument('--icon', default='icon.ico')
     args = parser.parse_args()
 
     if not args.title and len(sys.argv) > 1:
         args.title = os.path.basename(sys.argv[0]).split(".")[0]
 
     app = QApplication(sys.argv)
+    # 设置窗口图标
+    if sys.platform.startswith('win') and os.path.exists(args.icon):
+        app.setWindowIcon(QIcon(args.icon))
     browser = Browser(url=args.url,
                        ua=args.ua,
                        title=args.title, 
