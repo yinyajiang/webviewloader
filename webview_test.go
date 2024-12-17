@@ -117,7 +117,7 @@ func TestMain(m *testing.T) {
 		WebviewAppWorkDir: filepath.Join(localDir, "Test"),
 		WebviewAppName:    testName,
 	}
-	l := New(cfg)
+	l := NewWebview(cfg)
 
 	build := false
 	if isWindows() {
@@ -153,7 +153,7 @@ func TestMain(m *testing.T) {
 		m.Fatal("ua or cookies is empty")
 	}
 
-	l2 := New(cfg)
+	l2 := NewWebview(cfg)
 	secondPath, useLast, err := l2.getWebviewPath(true)
 	if err != nil {
 		m.Fatal(err)

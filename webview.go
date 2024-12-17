@@ -54,13 +54,13 @@ type WebviewResult struct {
 	Cookies map[string]string `json:"cookies"`
 }
 
-type Loader struct {
+type WebView struct {
 	cfg         Config
 	lock        sync.Mutex
 	webviewPath string
 }
 
-func New(cfg Config) *Loader {
+func NewWebview(cfg Config) *WebView {
 	if cfg.WebviewAppName == "" {
 		if isWindows() {
 			cfg.WebviewAppName = findBaseName(cfg.WinWebviewAppURI)
@@ -92,17 +92,17 @@ func New(cfg Config) *Loader {
 	if cfg.WinWebviewAppLowerMd5URIx86 == "" {
 		cfg.WinWebviewAppLowerMd5URIx86 = cfg.WinWebviewAppMd5URIx86
 	}
-	return &Loader{cfg: cfg}
+	return &WebView{cfg: cfg}
 }
 
-func (l *Loader) HasMustCfg() bool {
+func (l *WebView) HasMustCfg() bool {
 	if isWindows() {
 		return l.cfg.WinWebviewAppURI != ""
 	}
 	return l.cfg.MacWebviewAppURI != ""
 }
 
-func (l *Loader) CheckEnv(checkUpdate bool) (err error) {
+func (l *WebView) CheckEnv(checkUpdate bool) (err error) {
 	err = checkWebviewComponent()
 	if err == nil {
 		_, _, err = l.getWebviewPath(checkUpdate)
@@ -110,7 +110,7 @@ func (l *Loader) CheckEnv(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *Loader) InstallEnv(checkUpdate bool) (err error) {
+func (l *WebView) InstallEnv(checkUpdate bool) (err error) {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
@@ -131,7 +131,7 @@ func (l *Loader) InstallEnv(checkUpdate bool) (err error) {
 	return webviewErr
 }
 
-func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
+func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
 	err = l.CheckEnv(false)
 	if err != nil {
 		return
@@ -179,12 +179,12 @@ func (l *Loader) Start(url string, opt WebviewOptions) (result WebviewResult, er
 	return
 }
 
-func (l *Loader) GetWebviewPath() (path string, err error) {
+func (l *WebView) GetWebviewPath() (path string, err error) {
 	path, _, err = l.getWebviewPath(false)
 	return
 }
 
-func (l *Loader) installWebviewComponent() (err error) {
+func (l *WebView) installWebviewComponent() (err error) {
 	err = checkWebviewComponent()
 	if err != nil && isWindows() {
 		err = installWebviewComponent(l.cfg)
@@ -192,7 +192,7 @@ func (l *Loader) installWebviewComponent() (err error) {
 	return
 }
 
-func (l *Loader) installWebview(checkUpdate bool) (err error) {
+func (l *WebView) installWebview(checkUpdate bool) (err error) {
 	releaser, err := l.getGlobalMutexLock()
 	if err != nil {
 		return
@@ -202,12 +202,12 @@ func (l *Loader) installWebview(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *Loader) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
+func (l *WebView) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
 	releaser, err = mutexAcquire("install-"+l.cfg.WebviewAppName, time.Minute*10)
 	return releaser, err
 }
 
-func (l *Loader) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {
+func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.webviewPath != "" {
