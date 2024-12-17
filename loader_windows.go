@@ -14,7 +14,7 @@ import (
 	xwindows "golang.org/x/sys/windows"
 )
 
-func checkComponent() (err error) {
+func checkWebviewComponent() (err error) {
 	ver, err := webviewloader.GetAvailableCoreWebView2BrowserVersionString("")
 	if err != nil || ver == "" {
 		err = fmt.Errorf("webview2 not found, %v", err)
@@ -24,7 +24,7 @@ func checkComponent() (err error) {
 	return nil
 }
 
-func installComponent(cfg Config) (err error) {
+func installWebviewComponent(cfg Config) (err error) {
 	lock, err := newMutexLock(replaceMutexName("installwebview2"))
 	if err == nil {
 		hasSleep := false
@@ -40,7 +40,7 @@ func installComponent(cfg Config) (err error) {
 		if hasSleep {
 			time.Sleep(time.Second * 2)
 			//另一个进程可能安装完成
-			err = checkComponent()
+			err = checkWebviewComponent()
 			if err == nil {
 				return nil
 			}
@@ -67,7 +67,7 @@ func installComponent(cfg Config) (err error) {
 
 	count := 0
 	for count < 5 {
-		e := checkComponent()
+		e := checkWebviewComponent()
 		if e == nil {
 			os.Remove(dest)
 			return nil

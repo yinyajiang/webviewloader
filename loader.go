@@ -103,7 +103,7 @@ func (l *Loader) HasMustCfg() bool {
 }
 
 func (l *Loader) CheckEnv(checkUpdate bool) (err error) {
-	err = checkComponent()
+	err = checkWebviewComponent()
 	if err == nil {
 		_, _, err = l.getWebviewPath(checkUpdate)
 	}
@@ -118,7 +118,7 @@ func (l *Loader) InstallEnv(checkUpdate bool) (err error) {
 	var webviewErr error
 	go func() {
 		defer wg.Done()
-		componentErr = l.installComponent()
+		componentErr = l.installWebviewComponent()
 	}()
 	go func() {
 		defer wg.Done()
@@ -184,10 +184,10 @@ func (l *Loader) GetWebviewPath() (path string, err error) {
 	return
 }
 
-func (l *Loader) installComponent() (err error) {
-	err = checkComponent()
+func (l *Loader) installWebviewComponent() (err error) {
+	err = checkWebviewComponent()
 	if err != nil && isWindows() {
-		err = installComponent(l.cfg)
+		err = installWebviewComponent(l.cfg)
 	}
 	return
 }

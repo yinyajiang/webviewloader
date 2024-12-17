@@ -2,11 +2,11 @@ package webviewloader
 
 import "fmt"
 
-func checkComponent() (err error) {
+func checkWebviewComponent() (err error) {
 	return nil
 }
 
-func installComponent(...any) (err error) {
+func installWebviewComponent(...any) (err error) {
 	fmt.Print("macos should not install webview")
 	return nil
 }
