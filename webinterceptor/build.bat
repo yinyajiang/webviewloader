@@ -22,17 +22,59 @@ python -c "import struct; print('python is', '32 bit' if struct.calcsize('P') * 
 REM 退出虚拟环境
 CALL deactivate
 
-
-REM 查找并获取dist目录下的exe文件
-for /f "delims=" %%F in ('dir /b dist\*%suffix%.exe') do (
-    set "exe_file=dist\%%F"
-    set "exe_name=%%F"
+REM 判断是否是有--onedir参数
+set "has_onedir="
+for %%i in (%*) do (
+    if /i "%%i"=="--onedir" set "has_onedir=1"
 )
-echo %exe_file%
+if defined has_onedir (
+    REM 查找并获取dist目录下的exe文件（递归查找）
+    for /f "delims=" %%F in ('dir /s /b dist\*%suffix%.exe') do (
+        REM 路径中不能包含_internal
+        echo %%F | findstr /i "_internal" >nul
+        if errorlevel 1 (
+            set "exe_file=%%F"
+            goto :found_exe
+        )
+    )
+    :found_exe
+    REM 获取exe_file的父目录
+    for %%I in ("%exe_file%") do (
+        set "exe_dir=%%~dpI"
+        set "exe_name=%%~nxI"
+    )
 
-REM 计算exe的md5
-if defined exe_file (
-    python -c "import hashlib; print(r'%exe_name%: ' + hashlib.md5(open(r'%exe_file%', 'rb').read()).hexdigest())" > "%exe_file%.md5"
+    REM 移除exe_dir最后的反斜杠
+    if "%exe_dir:~-1%" == "\" (
+        setlocal enabledelayedexpansion
+        set "exe_dir=!exe_dir:~0,-1!"
+        endlocal & set "exe_dir=%exe_dir:~0,-1%"
+    )
+
+    if not defined exe_dir (
+        echo No exe_dir file found in dist directory
+        exit /b
+    )
+    REM 压缩 - 使用 PowerShell 的 Compress-Archive
+    powershell -command "Compress-Archive -Path '%exe_dir%' -DestinationPath '%exe_dir%.zip' -Force"
+
+    REM 计算zip的md5
+    python -c "import hashlib; print(r'%exe_name%: ' + hashlib.md5(open(r'%exe_dir%.zip', 'rb').read()).hexdigest())" > "%exe_dir%.zip.md5"
+   
 ) else (
-    echo No exe file found in dist directory
+    REM 查找并获取dist目录下的exe文件
+    for /f "delims=" %%F in ('dir /b dist\*%suffix%.exe') do (
+        set "exe_file=dist\%%F"
+        set "exe_name=%%F"
+    )
+    echo %exe_file%
+
+    REM 计算exe的md5
+    if defined exe_file (
+        python -c "import hashlib; print(r'%exe_name%: ' + hashlib.md5(open(r'%exe_file%', 'rb').read()).hexdigest())" > "%exe_file%.md5"
+    ) else (
+        echo No exe file found in dist directory
+    )
 )
+
+

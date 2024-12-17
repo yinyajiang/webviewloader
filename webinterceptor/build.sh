@@ -29,12 +29,11 @@ if [ -z "$app_name" ]; then
     exit 1
 fi
 
-if codesign --deep --force --verify --verbose --timestamp --sign "$cert" dist/$app_name; then
-    echo "codesign $app_name success"
-    # 压缩zip
-    cd dist && zip -ry $app_name.zip $app_name && cd ..
-    # 计算zip的md5 (使用macOS的md5命令)
-    echo -n "$app_name.zip: " > dist/$app_name.zip.md5
-    md5 -q dist/$app_name.zip >> dist/$app_name.zip.md5
-    python3 -V
-fi
+# 压缩zip
+cd dist && zip -ry $app_name.zip $app_name && cd ..
+# 计算zip的md5 (使用macOS的md5命令)
+echo -n "$app_name.zip: " > dist/$app_name.zip.md5
+md5 -q dist/$app_name.zip >> dist/$app_name.zip.md5
+python3 -V
+echo $cert
+
