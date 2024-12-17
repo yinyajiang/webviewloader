@@ -26,6 +26,14 @@ if args.icon and args.icon.startswith('http'):
     with open(dest, 'wb') as f:
         f.write(response.content)
     args.icon = dest
+elif args.icon:
+    dest = os.path.join(current_dir, "icon.ico")
+    shutil.copy2(args.icon, dest) 
+    args.icon = dest
+    
+# 确保图标文件路径是相对于当前目录的
+if args.icon:
+    args.icon = os.path.abspath(args.icon)
 
 import PyInstaller.__main__
 
@@ -40,9 +48,8 @@ pyinstaller_args = [
     
 ]) + ([
     f"--icon={args.icon}",
-] if args.icon else []) + ([
     f"--add-data={args.icon};.",
-] if args.icon and iswin else [])
+] if args.icon else [])
 
 PyInstaller.__main__.run(pyinstaller_args)
 
