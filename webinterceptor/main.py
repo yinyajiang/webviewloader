@@ -106,6 +106,14 @@ class Browser(QMainWindow):
         print(json.dumps(obj)+"\n", flush=True)
   
 
+def pkg_resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller创建临时文件夹，将路径存储在_MEIPASS中
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 if __name__ == '__main__':
     isWin = sys.platform.lower().startswith('win')
@@ -131,8 +139,9 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     # 设置窗口图标
-    if sys.platform.startswith('win') and os.path.exists(args.icon):
-        app.setWindowIcon(QIcon(args.icon))
+    icon_path = pkg_resource_path(args.icon)
+    if sys.platform.startswith('win') and os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
     browser = Browser(url=args.url,
                        ua=args.ua,
                        title=args.title, 
