@@ -17,6 +17,7 @@ parser.add_argument('--must-cert', action='store_true')
 parser.add_argument('--icon', default='')
 parser.add_argument('--win-sign', default='')
 args = parser.parse_args()
+print(args)
 
 cert = get_cert() if args.must_cert else ""
 
@@ -56,5 +57,7 @@ if not args.onedir and os.path.exists(_tmp):
     shutil.rmtree(_tmp)
 
 if iswin and args.win_sign:
+    # 运行签名命令，捕获输出并等待完成
     subprocess.run(args.win_sign, shell=True)
+    print("sign done")
 
