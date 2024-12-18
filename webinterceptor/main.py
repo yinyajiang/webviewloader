@@ -124,7 +124,7 @@ if __name__ == '__main__':
                         help='Window title')
     parser.add_argument('--banner', default='Please start playing the video first, and then it will start parsing.',
                         help='Banner text')
-    parser.add_argument('--banner_color', default='#FF4E50',
+    parser.add_argument('--banner-color', default='#FF4E50',
                         help='Banner background color')
     parser.add_argument('--ua', default='')
     parser.add_argument('--width', default=1024, type=int,

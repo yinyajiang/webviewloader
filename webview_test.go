@@ -107,7 +107,7 @@ func TestMain(m *testing.T) {
 	}
 	os.RemoveAll(filepath.Join(localDir, "Test"))
 
-	cfg := Config{
+	cfg := WebviewConfig{
 		WinWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".exe"),
 		WinWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
 

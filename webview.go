@@ -14,7 +14,7 @@ import (
 	"github.com/juju/mutex"
 )
 
-type Config struct {
+type WebviewConfig struct {
 	WinWebviewAppURI       string
 	WinWebviewAppMd5URI    string
 	WinWebviewAppURIx86    string
@@ -55,12 +55,12 @@ type WebviewResult struct {
 }
 
 type WebView struct {
-	cfg         Config
+	cfg         WebviewConfig
 	lock        sync.Mutex
 	webviewPath string
 }
 
-func NewWebview(cfg Config) *WebView {
+func NewWebview(cfg WebviewConfig) *WebView {
 	if cfg.WebviewAppName == "" {
 		if isWindows() {
 			cfg.WebviewAppName = findBaseName(cfg.WinWebviewAppURI)

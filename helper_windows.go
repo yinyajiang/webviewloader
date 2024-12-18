@@ -24,7 +24,7 @@ func checkWebviewComponent() (err error) {
 	return nil
 }
 
-func installWebviewComponent(cfg Config) (err error) {
+func installWebviewComponent(cfg WebviewConfig) (err error) {
 	lock, err := newMutexLock(replaceMutexName("installwebview2"))
 	if err == nil {
 		hasSleep := false

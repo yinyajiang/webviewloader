@@ -12,5 +12,17 @@ func installWebviewComponent(...any) (err error) {
 }
 
 func selectURI(st selectURISt) string {
-	panic("macos not implement selectURI")
+	if st.x64 != "" {
+		return st.x64
+	}
+	if st.x86 != "" {
+		return st.x86
+	}
+	if st.x64lower != "" {
+		return st.x64lower
+	}
+	if st.x86lower != "" {
+		return st.x86lower
+	}
+	return ""
 }
