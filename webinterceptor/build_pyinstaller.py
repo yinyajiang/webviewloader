@@ -45,13 +45,9 @@ pyinstaller_args = [
     f"--name={args.name}",
 ] + (["--onedir"] if args.onedir else ["--onefile"]) + (["--codesign-identity", cert] if cert else []) + ([
    
-] if not iswin else [
-    
-]) + ([
-    f"--icon={args.icon}",
-] if args.icon else []) + ([
-    f"--add-data={args.icon};.",  # windows下需要添加图标
-] if args.icon and iswin else [])
+] if iswin else [
+    "--target-architecture=universal2"
+]) + ([f"--icon={args.icon}"] if args.icon else []) + ([f"--add-data={args.icon};."] if args.icon and iswin else [])
 
 PyInstaller.__main__.run(pyinstaller_args)
 

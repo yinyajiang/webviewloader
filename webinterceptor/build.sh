@@ -14,6 +14,7 @@ python3 -V
 pip3 install -r requirements.txt
 pip3 install pyinstaller 
 pip3 install requests
+pip3 install Pillow
 
 # 构建
 rm -rf build dist .eggs
