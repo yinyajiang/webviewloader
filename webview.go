@@ -210,7 +210,7 @@ func (l *WebView) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
 func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	if l.webviewPath != "" {
+	if l.webviewPath != "" && fileutil.IsExist(l.webviewPath) {
 		return l.webviewPath, true, nil
 	}
 

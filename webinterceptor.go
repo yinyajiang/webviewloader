@@ -112,6 +112,14 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 		obj, e := findJsonObject(stdout)
 		if e == nil {
 			err = json.Unmarshal(obj, &result)
+			if err == nil && result.URL == "" {
+				err = fmt.Errorf("error: %s", string(stdout))
+			}
+			if err == nil {
+				if result.Headers["User-Agent"] != "" {
+					result.UA = result.Headers["User-Agent"]
+				}
+			}
 			return
 		}
 	}
@@ -141,7 +149,7 @@ func (l *WebInterceptor) getGlobalMutexLock() (releaser mutex.Releaser, err erro
 func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	if l.webInterceptorPath != "" {
+	if l.webInterceptorPath != "" && fileutil.IsExist(l.webInterceptorPath) {
 		return l.webInterceptorPath, true, nil
 	}
 
@@ -214,12 +222,16 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 
 	if isWindows() {
 		os.RemoveAll(filepath.Dir(webInterceptorAppPath))
-		fileutil.UnZip(tempPath, l.cfg.WebInterceptorAppWorkDir)
+		fileutil.UnZip(tempPath, filepath.Dir(webInterceptorAppPath))
 	} else {
 		os.RemoveAll(webInterceptorAppPath)
 		fileutil.UnZip(tempPath, filepath.Dir(webInterceptorAppPath))
 		os.Chmod(webInterceptorAppPath, 0755)
 	}
 	os.Remove(tempPath)
+
+	if !fileutil.IsExist(webInterceptorAppPath) {
+		err = fmt.Errorf("webinterceptor app not found: %s", webInterceptorAppPath)
+	}
 	return webInterceptorAppPath, false, err
 }
