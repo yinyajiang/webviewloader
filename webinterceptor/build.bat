@@ -55,12 +55,14 @@ if defined has_onedir (
         echo No exe_dir file found in dist directory
         exit /b
     )
-    REM 压缩 - 使用 PowerShell 的 Compress-Archive
-    powershell -command "Compress-Archive -Path '%exe_dir%' -DestinationPath '%exe_dir%.zip' -Force"
-
+    REM 压缩
+    echo zip %exe_dir% ....
+    python -c "import shutil; shutil.make_archive(r'%exe_dir%', 'zip', r'%exe_dir%')"
+    echo zip %exe_dir%.zip done
     REM 计算zip的md5
-    python -c "import hashlib; print(r'%exe_name%: ' + hashlib.md5(open(r'%exe_dir%.zip', 'rb').read()).hexdigest())" > "%exe_dir%.zip.md5"
-   
+    echo md5 %exe_dir%.zip ....
+    python -c "import hashlib; print(r'%exe_dir%: ' + hashlib.md5(open(r'%exe_dir%.zip', 'rb').read()).hexdigest())" > "%exe_dir%.zip.md5"
+    echo md5 done
 ) else (
     REM 查找并获取dist目录下的exe文件
     for /f "delims=" %%F in ('dir /b dist\*%suffix%.exe') do (
