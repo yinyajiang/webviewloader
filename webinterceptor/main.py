@@ -101,7 +101,7 @@ class Browser(QMainWindow):
             self.page.deleteLater()  # 删除页面
         super().closeEvent(event)
         obj = {
-            "Error": "Closed by user.",
+            "error": "Closed by user.",
         }
         print(json.dumps(obj)+"\n", flush=True)
   
