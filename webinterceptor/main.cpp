@@ -6,11 +6,8 @@
 #include <locale>
 
 int main(int argc, char *argv[]) {
-#if defined(_WIN32) || defined(_WIN64)
-    // Windows 平台需要设置控制台输出代码页为 UTF-8
-    SetConsoleOutputCP(CP_UTF8);
-#endif
-    
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     std::locale::global(std::locale(""));
 
     QApplication app(argc, argv);
