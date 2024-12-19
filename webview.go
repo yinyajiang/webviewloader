@@ -296,7 +296,7 @@ func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, e
 		err = os.Rename(tempPath, webviewPath)
 	} else {
 		os.RemoveAll(webviewPath)
-		fileutil.UnZip(tempPath, filepath.Dir(webviewPath))
+		unZip(tempPath, filepath.Dir(webviewPath))
 		os.Chmod(webviewPath, 0755)
 		os.Remove(tempPath)
 	}

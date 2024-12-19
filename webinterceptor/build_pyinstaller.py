@@ -53,7 +53,7 @@ pyinstaller_args = [
 PyInstaller.__main__.run(pyinstaller_args)
 
 _tmp = os.path.join(current_dir, "dist", args.name)
-if not args.onedir and os.path.exists(_tmp):
+if (not args.onedir and os.path.exists(_tmp)) or (args.onedir and os.path.exists(_tmp) and not iswin):
     shutil.rmtree(_tmp)
 
 if iswin and args.win_sign:

@@ -222,10 +222,10 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 
 	if isWindows() {
 		os.RemoveAll(filepath.Dir(webInterceptorAppPath))
-		fileutil.UnZip(tempPath, filepath.Dir(webInterceptorAppPath))
+		unZip(tempPath, filepath.Dir(webInterceptorAppPath))
 	} else {
 		os.RemoveAll(webInterceptorAppPath)
-		fileutil.UnZip(tempPath, filepath.Dir(webInterceptorAppPath))
+		unZip(tempPath, filepath.Dir(webInterceptorAppPath))
 		os.Chmod(webInterceptorAppPath, 0755)
 	}
 	os.Remove(tempPath)

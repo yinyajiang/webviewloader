@@ -1,6 +1,7 @@
 package webviewloader
 
 import (
+	"archive/zip"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -148,4 +149,78 @@ func findJsonObject(data_ []byte) ([]byte, error) {
 
 type selectURISt struct {
 	x64, x64lower, x86, x86lower string
+}
+
+func unZip(zipFile string, destPath string) error {
+	zipReader, err := zip.OpenReader(zipFile)
+	if err != nil {
+		return err
+	}
+	defer zipReader.Close()
+
+	for _, f := range zipReader.File {
+		path := filepath.Join(destPath, f.Name)
+
+		if !isWindows() {
+			isSymlink := f.Mode()&os.ModeSymlink != 0 || (f.ExternalAttrs>>16)&0xA000 == 0xA000
+
+			if isSymlink {
+				inFile, err := f.Open()
+				if err != nil {
+					return fmt.Errorf("failed to open symlink: %v", err)
+				}
+
+				linkTarget, err := io.ReadAll(inFile)
+				inFile.Close()
+				if err != nil {
+					return fmt.Errorf("failed to read symlink target: %v", err)
+				}
+
+				if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+					return fmt.Errorf("failed to create parent directory for symlink: %v", err)
+				}
+
+				if _, err := os.Lstat(path); err == nil {
+					os.Remove(path)
+				}
+
+				if err := os.Symlink(string(linkTarget), path); err != nil {
+					return fmt.Errorf("failed to create symlink %s -> %s: %v", path, string(linkTarget), err)
+				}
+				continue
+			}
+		}
+
+		if f.FileInfo().IsDir() {
+			err = os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return err
+			}
+			continue
+		} else {
+			err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
+			if err != nil {
+				return err
+			}
+
+			inFile, err := f.Open()
+			if err != nil {
+				return err
+			}
+
+			outFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+			if err != nil {
+				inFile.Close()
+				return err
+			}
+
+			_, err = io.Copy(outFile, inFile)
+			inFile.Close()
+			outFile.Close()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

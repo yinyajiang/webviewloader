@@ -15,8 +15,8 @@ func TestWebInterceptor(m *testing.T) {
 	cfg := WebInterceptorConfig{
 		WinWebInterceptorAppURI:    "http://10.2.51.27/dist/WebInterceptor.zip",
 		WinWebInterceptorAppMd5URI: "http://10.2.51.27/dist/WebInterceptor.zip.md5",
-		MacWebInterceptorAppURI:    "http://10.2.51.27/dist/WebInterceptor.app.zip",
-		MacWebInterceptorAppMd5URI: "http://10.2.51.27/dist/WebInterceptor.app.zip.md5",
+		MacWebInterceptorAppURI:    "http://10.2.51.27/bin/WebInterceptor.app.zip",
+		MacWebInterceptorAppMd5URI: "http://10.2.51.27/bin/WebInterceptor.app.zip.md5",
 		WebInterceptorAppWorkDir:   filepath.Join(localDir, "Test"),
 		WebInterceptorAppName:      "",
 	}

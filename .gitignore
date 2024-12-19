@@ -8,4 +8,4 @@ dist/
 __pycache__/
 mm_*
 Test/
-webview/icon.ico
+icon.ico
