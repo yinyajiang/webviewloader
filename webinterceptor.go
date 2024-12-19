@@ -34,6 +34,7 @@ type WebInterceptorOptions struct {
 	Height      int
 	Banner      string
 	BannerColor string
+	ShowAddress bool
 }
 
 type WebInterceptorResult struct {
@@ -100,7 +101,9 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if opt.BannerColor != "" {
 		args = append(args, "--banner-color", opt.BannerColor)
 	}
-
+	if opt.ShowAddress {
+		args = append(args, "--address")
+	}
 	webInterceptorPath, err := l.GetWebInterceptorPath()
 	if err != nil {
 		return

@@ -2,9 +2,35 @@ package webviewloader
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/duke-git/lancet/v2/fileutil"
 )
+
+const webInterceptorTestName = "TEST_WEBINTERCEPTOR"
+
+func buildWebInterceptor(t *testing.T) {
+	oldDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Chdir(filepath.Join(oldDir, "webinterceptor"))
+	var cmd *exec.Cmd
+	if isWindows() {
+		cmd = exec.Command("cmd", "/C", "build.bat", "--name", webInterceptorTestName)
+
+	} else {
+		cmd = exec.Command("bash", "build.sh", "--name", webInterceptorTestName)
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+	os.Chdir(oldDir)
+}
 
 func TestWebInterceptor(m *testing.T) {
 	localDir, err := os.Getwd()
@@ -13,34 +39,70 @@ func TestWebInterceptor(m *testing.T) {
 	}
 
 	cfg := WebInterceptorConfig{
-		WinWebInterceptorAppURI:    "http://10.2.51.27/dist/WebInterceptor.zip",
-		WinWebInterceptorAppMd5URI: "http://10.2.51.27/dist/WebInterceptor.zip.md5",
-		MacWebInterceptorAppURI:    "http://10.2.51.27/bin/WebInterceptor.app.zip",
-		MacWebInterceptorAppMd5URI: "http://10.2.51.27/bin/WebInterceptor.app.zip.md5",
-		WebInterceptorAppWorkDir:   filepath.Join(localDir, "Test"),
-		WebInterceptorAppName:      "",
+		WinWebInterceptorAppURI:    filepath.Join(localDir, "webinterceptor/dist/"+webInterceptorTestName+".zip"),
+		WinWebInterceptorAppMd5URI: filepath.Join(localDir, "webinterceptor/dist/"+webInterceptorTestName+".zip.md5"),
+
+		MacWebInterceptorAppURI:    filepath.Join(localDir, "webinterceptor/dist/"+webInterceptorTestName+".app.zip"),
+		MacWebInterceptorAppMd5URI: filepath.Join(localDir, "webinterceptor/dist/"+webInterceptorTestName+".app.zip.md5"),
+
+		WebInterceptorAppWorkDir: filepath.Join(localDir, webInterceptorTestName),
+		WebInterceptorAppName:    webInterceptorTestName,
 	}
+	os.RemoveAll(cfg.WebInterceptorAppWorkDir)
+
 	l := NewWebInterceptor(cfg)
-	err = l.CheckEnv(false)
+
+	build := false
+	if isWindows() {
+		m.Logf("win uri: %s", l.cfg.WinWebInterceptorAppURI)
+		if !fileutil.IsExist(l.cfg.WinWebInterceptorAppURI) {
+			build = true
+		}
+	} else {
+		m.Logf("mac uri: %s", l.cfg.MacWebInterceptorAppURI)
+		if !fileutil.IsExist(l.cfg.MacWebInterceptorAppURI) {
+			build = true
+		}
+	}
+	if build {
+		buildWebInterceptor(m)
+	}
+	firstPath, useLast, err := l.getWebInterceptorPath(true)
 	if err != nil {
 		m.Fatal(err)
 	}
-	l.webInterceptorPath = ""
-	err = l.CheckEnv(true)
-	if err != nil {
-		m.Fatal(err)
+	if useLast {
+		m.Fatal("should not use last")
 	}
-	l.webInterceptorPath = ""
-	err = l.CheckEnv(true)
-	if err != nil {
+	if err := l.InstallEnv(true); err != nil {
 		m.Fatal(err)
 	}
 
 	info, err := l.Start("https://ww4.fmovies.co/film/gladiator-ii-1630857926/", WebInterceptorOptions{
-		Title: "TEST",
+		ShowAddress: true,
 	})
 	if err != nil {
 		m.Fatal(err)
 	}
-	m.Logf("info: %+v", info)
+	if info.URL == "" {
+		m.Fatal("url is empty")
+	}
+
+	l2 := NewWebInterceptor(cfg)
+	secondPath, useLast, err := l2.getWebInterceptorPath(true)
+	if err != nil {
+		m.Fatal(err)
+	}
+	if !useLast {
+		m.Fatal("should use last")
+	}
+	if firstPath != secondPath {
+		m.Fatal("path not equal")
+	}
+
+	releaser, err := l2.getGlobalMutexLock()
+	if err != nil {
+		m.Fatal(err)
+	}
+	releaser.Release()
 }

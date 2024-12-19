@@ -10,7 +10,7 @@ import (
 	"github.com/duke-git/lancet/v2/fileutil"
 )
 
-const testName = "TEST_WEBVIEW"
+const webviewTestName = "TEST_WEBVIEW"
 
 func buildWebview(t *testing.T) {
 	oldDir, err := os.Getwd()
@@ -20,10 +20,10 @@ func buildWebview(t *testing.T) {
 	os.Chdir(filepath.Join(oldDir, "webview"))
 	var cmd *exec.Cmd
 	if isWindows() {
-		cmd = exec.Command("cmd", "/C", "build.bat", "--name", testName)
+		cmd = exec.Command("cmd", "/C", "build.bat", "--name", webviewTestName)
 
 	} else {
-		cmd = exec.Command("bash", "build.sh", "--name", testName)
+		cmd = exec.Command("bash", "build.sh", "--name", webviewTestName)
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -98,25 +98,24 @@ testestetsetetsgadsgsgasdg
 
 }
 
-func TestMain(m *testing.T) {
+func TestWebView(m *testing.T) {
 	testFindjson(m)
 
 	localDir, err := os.Getwd()
 	if err != nil {
 		m.Fatal(err)
 	}
-	os.RemoveAll(filepath.Join(localDir, "Test"))
-
 	cfg := WebviewConfig{
-		WinWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".exe"),
-		WinWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".exe.md5"),
+		WinWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+webviewTestName+".exe"),
+		WinWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+webviewTestName+".exe.md5"),
 
-		MacWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+testName+".app.zip"),
-		MacWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+testName+".app.zip.md5"),
+		MacWebviewAppURI:    filepath.Join(localDir, "webview/dist/"+webviewTestName+".app.zip"),
+		MacWebviewAppMd5URI: filepath.Join(localDir, "webview/dist/"+webviewTestName+".app.zip.md5"),
 
-		WebviewAppWorkDir: filepath.Join(localDir, "Test"),
-		WebviewAppName:    testName,
+		WebviewAppWorkDir: filepath.Join(localDir, webviewTestName),
+		WebviewAppName:    webviewTestName,
 	}
+	os.RemoveAll(cfg.WebviewAppWorkDir)
 	l := NewWebview(cfg)
 
 	build := false
