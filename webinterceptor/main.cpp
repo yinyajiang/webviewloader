@@ -4,9 +4,16 @@
 #include <QIcon>
 #include "browser.h"
 #include <QProcessEnvironment>
+#ifdef _WIN32
+    #include <io.h>
+    #include <fcntl.h>
+#endif
 
 int main(int argc, char *argv[]) {
     qunsetenv("LANG");
+    #ifdef _WIN32
+        _setmode(_fileno(stdout), _O_BINARY);
+    #endif
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 

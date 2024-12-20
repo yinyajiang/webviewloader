@@ -6,9 +6,11 @@
 #include <iostream>
 #include <QNetworkCookie>
 
-UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QObject* parent)
+
+UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, QObject* parent)
     : QWebEngineUrlRequestInterceptor(parent)
-    , m_profile(profile) {
+    , m_profile(profile)
+    , m_webView(webView) {
 
     connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieAdded,
             this, [this](const QNetworkCookie& cookie) {
@@ -19,6 +21,9 @@ UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QObject
                 m_cookies.removeAll(cookie);
             });
 
+    connect(m_webView, &QWebEngineView::titleChanged, this, [this](const QString& title) {
+        this->m_htmlTitle = title;
+    });
 }
 
 void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {
@@ -27,6 +32,7 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {
         QJsonObject obj;
         obj["url"] = url;
         obj["method"] = QString::fromUtf8(info.requestMethod());
+        obj["title"] = m_htmlTitle;
         
         // 添加 headers
         QJsonObject headers;
@@ -72,15 +78,16 @@ bool UrlRequestInterceptor::isPlayable(const QString& urlString) const {
     return false;
 }
 
-WebInterceptor::WebInterceptor(const QString& ua, QObject* parent)
+
+WebInterceptor::WebInterceptor(const QString& ua, QWebEngineView* webView, QObject* parent)
     : QWebEngineProfile(parent) {
-    m_interceptor = new UrlRequestInterceptor(this, this);
+    m_interceptor = new UrlRequestInterceptor(this, webView, this);
     setUrlRequestInterceptor(m_interceptor);
     setSpellCheckEnabled(false);
     
     if (!ua.isEmpty()) {
         setHttpUserAgent(ua);
     }
-    
+
     settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, true);
 } 

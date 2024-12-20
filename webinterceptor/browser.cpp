@@ -79,7 +79,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
     layout->addWidget(m_bannerLabel);
 
     m_webView = new QWebEngineView(this);
-    m_profile = new WebInterceptor(ua, this);
+    m_profile = new WebInterceptor(ua, m_webView, this);
     m_page = new QWebEnginePage(m_profile, this);
     connect(m_page, &QWebEnginePage::urlChanged, this, &Browser::urlChanged);
     m_webView->setPage(m_page);
