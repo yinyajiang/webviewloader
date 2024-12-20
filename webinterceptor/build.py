@@ -143,7 +143,7 @@ def main():
 
         shutil.make_archive(os.path.join(current_dir, "dist", args.name), 'zip', dest_dir)
         with open(f"dist/{args.name}.zip.md5", 'w') as file:
-            file.write(f"dist/{args.name}.zip: " +  hashlib.md5(open(f"dist/{args.name}.zip", 'rb').read()).hexdigest())
+            file.write(f"{args.name}.zip: " +  hashlib.md5(open(f"dist/{args.name}.zip", 'rb').read()).hexdigest())
           
     # 删除临时文件
     os.remove('webinterceptor_build.pro')
