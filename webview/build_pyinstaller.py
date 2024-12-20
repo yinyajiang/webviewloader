@@ -13,12 +13,11 @@ print(f'\nsys.prefix: {sys.prefix}\n\n')
 parser = argparse.ArgumentParser(description='Command Line Parser')
 parser.add_argument('--onedir', action='store_true')
 parser.add_argument('--name', default='load_cookie')
-parser.add_argument('--must-cert', action='store_true')
+parser.add_argument('--cert', default='')
 parser.add_argument('--icon', default='')
 parser.add_argument('--win-sign', default='')
 args = parser.parse_args()
 
-cert = get_cert() if args.must_cert else ""
 
 if args.icon and args.icon.startswith('http'):
     # 下载
@@ -46,7 +45,7 @@ pyinstaller_args = [
     "--exclude-module=PySide2",
     "--exclude-module=PySide6",
     f"--name={args.name}",
-] + (["--onedir"] if args.onedir else ["--onefile"]) + (["--codesign-identity", cert, "--no-entitlements"] if cert else []) + ([
+] + (["--onedir"] if args.onedir else ["--onefile"]) + (["--codesign-identity", args.cert, "--no-entitlements"] if args.cert else []) + ([
     "--hidden-import=WebKit",
     "--hidden-import=Foundation",
     "--hidden-import=webview",

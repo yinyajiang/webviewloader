@@ -10,14 +10,13 @@ import subprocess
 import requests
 import hashlib
 
-def get_cert(): 
+
+def check_cert_valid(cert): 
     prename='Developer ID Application:'
     output = subprocess.check_output(f'security find-certificate -c "{prename}"', shell=True).decode('utf-8')
-    match = re.compile(f'"({prename}.+)"').search(output)
-    cert = match.group(1)
-    if cert == '':
-        raise Exception('No certificate found')
-    return cert
+    if cert not in output:
+        raise Exception(f'{cert} not found')
+    return True
 
 
 def getBatEnv(bat):
@@ -60,12 +59,14 @@ def main():
                       help='Bundle identifier (macOS)')
     parser.add_argument('--icon',
                       help='Path to icon file')
+    parser.add_argument('--cert',
+                      help='maccert')
     parser.add_argument('--win-sign',
-                      help='Path to win sign file')
+                      help='sign cmd')
     parser.add_argument('--win-vsbat',
                       help='Path to win vsbat file')
     parser.add_argument('--qt-bin',
-                      help='Path to qt bin file')
+                      help='Path to qt bin')
     args = parser.parse_args()
 
     # 删除dist
@@ -85,7 +86,7 @@ def main():
         with open('Info.plist', 'r') as file:
             content = file.read()
             if args.bundle_id:
-                content = content.replace('{bundle_id}', args.bundle_id)
+                content = content.replace('{bundle_id}', args.bundle_id.lower())
         with open('Info_build.plist', 'w') as file:
             file.write(content)
     else:
@@ -108,24 +109,27 @@ def main():
     if not isWin:
         subprocess.run([f'{args.qt_bin}/qmake', 'webinterceptor_build.pro'], cwd=current_dir).check_returncode()
         subprocess.run(['make'], cwd=current_dir).check_returncode()
-        subprocess.run([f'{args.qt_bin}/bin/macdeployqt', f'dist/{args.name}.app',
+        subprocess.run([f'{args.qt_bin}/macdeployqt', f'dist/{args.name}.app',
                         ], cwd=current_dir).check_returncode()
-        cert = get_cert()
-        if cert:
-            subprocess.run([f'codesign', '--timestamp', '--force', '--deep', '--verify', '--verbose', '--sign', cert, f'dist/{args.name}.app'], cwd=current_dir).check_returncode()
+    
+        if args.cert:
+            check_cert_valid(args.cert)
+            subprocess.run([f'codesign', '--timestamp', '--force', '--deep', '--verify', '--verbose', '--sign', args.cert, f'dist/{args.name}.app'], cwd=current_dir).check_returncode()
             print(f'codesign success')
-            subprocess.run(['zip', '-ry', f'{args.name}.app.zip', f'{args.name}.app'], cwd=os.path.join(current_dir, 'dist')).check_returncode()
-            print(f'zip success')
-            with open(f"dist/{args.name}.app.zip.md5", 'w') as file:
-                file.write(f"{args.name}.app.zip: " +  hashlib.md5(open(f"dist/{args.name}.app.zip", 'rb').read()).hexdigest())
         else:
-            print(f'not found cert')
+            print(f'not codesign')
+        subprocess.run(['zip', '-ry', f'{args.name}.app.zip', f'{args.name}.app'], cwd=os.path.join(current_dir, 'dist')).check_returncode()
+        print(f'zip success')
+        with open(f"dist/{args.name}.app.zip.md5", 'w') as file:
+            file.write(f"{args.name}.app.zip: " +  hashlib.md5(open(f"dist/{args.name}.app.zip", 'rb').read()).hexdigest())
     else:
         subprocess.run([f'{args.qt_bin}/qmake', 'webinterceptor_build.pro'], cwd=current_dir).check_returncode()
         subprocess.run(['nmake'], cwd=current_dir).check_returncode()
         exe = os.path.join(current_dir, "dist", args.name + ".exe")
-        subprocess.run(f'{args.win_sign} {exe}', shell=True, cwd=current_dir)
-
+        if args.win_sign:
+            subprocess.run(f'{args.win_sign} {exe}', shell=True, cwd=current_dir)
+        else:
+            print(f'not win_sign')
         dest_dir = os.path.join(current_dir, "dist", args.name)
         os.makedirs(dest_dir, exist_ok=True)
         dest = os.path.join(dest_dir, args.name + ".exe")

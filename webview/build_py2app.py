@@ -8,6 +8,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parser = argparse.ArgumentParser(description='Command Line Parser')
 parser.add_argument('--name', default='load_cookie')
 parser.add_argument('--icon', default='')
+parser.add_argument('--cert', default='')
 parser.add_argument('*')
 args = parser.parse_args()
 if args.icon and args.icon.startswith('http'):
@@ -20,7 +21,7 @@ if args.icon and args.icon.startswith('http'):
 
 # 删除参数，否则失败
 for arg in sys.argv:
-    if arg in ['--icon', '--name']:
+    if arg in ['--icon', '--name', '--cert']:
         index = sys.argv.index(arg)
         sys.argv.pop(index)
         sys.argv.pop(index)

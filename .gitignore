@@ -16,3 +16,11 @@ Makefile.*
 *.pro.user*
 *resource.rc
 TEST_*/
+TEST_*/
+build/
+.qtc_*
+.vscode/
+Makefile
+.user
+Info_build.plist
+webinterceptor_build.pro

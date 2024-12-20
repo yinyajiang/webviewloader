@@ -14,10 +14,31 @@ python3 -V
 pip3 install setuptools==70.3.0
 pip3 install -r requirements.txt
 pip3 install py2app 
+
+
+#解析传过来的cert
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --cert=*)
+            cert="${1#*=}"
+            shift
+            ;;
+        --cert)
+            cert="$2"
+            shift 2
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+echo "cert: $cert"
+
 # 构建
 rm -rf build dist .eggs
 python3 build_py2app.py py2app $@
-cert=$(python3 build_cert.py)
+
+
 
 # 获取dist的.app目录的名字
 app_name=$(ls dist | grep -E '\.app$')
