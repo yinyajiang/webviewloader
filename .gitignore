@@ -9,3 +9,9 @@ __pycache__/
 mm_*
 Test/
 icon.ico
+build-*/
+*.stash
+Makefile
+Makefile.*
+*.pro.user*
+*resource.rc
