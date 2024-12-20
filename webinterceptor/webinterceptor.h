@@ -2,15 +2,19 @@
 
 #include <QWebEngineProfile>
 #include <QWebEngineUrlRequestInterceptor>
+#include <QNetworkCookie>
+#include <QWebEngineCookieStore>
 
 class UrlRequestInterceptor : public QWebEngineUrlRequestInterceptor {
     Q_OBJECT
 public:
-    UrlRequestInterceptor(QObject* parent = nullptr);
+    UrlRequestInterceptor(QWebEngineProfile* profile, QObject* parent = nullptr);
     void interceptRequest(QWebEngineUrlRequestInfo& info) override;
 
 private:
     bool isPlayable(const QString& url) const;
+    QWebEngineProfile* m_profile;
+    QList<QNetworkCookie> m_cookies;
 };
 
 class WebInterceptor : public QWebEngineProfile {
@@ -19,5 +23,5 @@ public:
     WebInterceptor(const QString& ua, QObject* parent = nullptr);
 
 private:
-    UrlRequestInterceptor* interceptor;
+    UrlRequestInterceptor* m_interceptor;
 }; 

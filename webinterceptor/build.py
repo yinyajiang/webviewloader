@@ -86,7 +86,7 @@ def main():
         with open('Info.plist', 'r') as file:
             content = file.read()
             if args.bundle_id:
-                content = content.replace('{bundle_id}', args.bundle_id.lower())
+                content = content.replace('{bundle_id}', args.bundle_id.replace(' ', '').lower())
         with open('Info_build.plist', 'w') as file:
             file.write(content)
     else:

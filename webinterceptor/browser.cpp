@@ -55,21 +55,26 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
         layout->addLayout(addressLayout);
     }
 
-    m_bannerLabel = new QLabel(banner, this);
+    QString bannerText = QString("▶   %1").arg(banner);
+    m_bannerLabel = new QLabel(bannerText, this);
     m_bannerLabel->setAlignment(Qt::AlignCenter);
     m_bannerLabel->setStyleSheet(QString(
                                    "QLabel {"
                                    "    background-color: %1;"
-                                   "    color: white;"
+                                   "    color: #F9F9F9;"
                                    "    padding: 6px 20px;"
-                                   "    font-size: 13px;"
+                                   "    font-size: 14px;"
                                    "    font-weight: bold;"
                                    "    border-radius: 3px;"
                                    "    margin: 8px 15px;"
                                    "    max-height: 22px;"
                                    "    letter-spacing: 1px;"
+                                   "}"
+                                   "QLabel::first-letter {"
+                                   "    font-size: 14px;"
+                                   "    margin-right: 8px;"
                                    "}").arg(bannerColor));
-    m_bannerLabel->setMaximumHeight(36);
+    m_bannerLabel->setMaximumHeight(40);
 
     layout->addWidget(m_bannerLabel);
 
