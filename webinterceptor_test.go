@@ -19,10 +19,12 @@ func buildWebInterceptor(t *testing.T) {
 	os.Chdir(filepath.Join(oldDir, "webinterceptor"))
 	var cmd *exec.Cmd
 	if isWindows() {
-		cmd = exec.Command("cmd", "/C", "build.bat", "--name", webInterceptorTestName)
-
+		vsbat := "D:/vs2022/VC/Auxiliary/Build/vcvars64.bat"
+		qtBin := "D:/Qt6.5.3/6.5.3/msvc2019_64/bin"
+		cmd = exec.Command("python", "build.py", "--name", webInterceptorTestName, "--win-vsbat", vsbat, "--qt-bin", qtBin)
 	} else {
-		cmd = exec.Command("bash", "build.sh", "--name", webInterceptorTestName)
+		qtBin := "/Volumes/extern-usb/Apps/Qt/6.7.3/macos/bin"
+		cmd = exec.Command("python", "build.py", "--name", webInterceptorTestName, "--qt-bin", qtBin)
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
