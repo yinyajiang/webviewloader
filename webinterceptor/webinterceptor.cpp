@@ -76,6 +76,7 @@ WebInterceptor::WebInterceptor(const QString& ua, QObject* parent)
     : QWebEngineProfile(parent) {
     m_interceptor = new UrlRequestInterceptor(this, this);
     setUrlRequestInterceptor(m_interceptor);
+    setSpellCheckEnabled(false);
     
     if (!ua.isEmpty()) {
         setHttpUserAgent(ua);

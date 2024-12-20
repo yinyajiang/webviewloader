@@ -3,12 +3,12 @@
 #include <QFileInfo>
 #include <QIcon>
 #include "browser.h"
-#include <locale>
+#include <QProcessEnvironment>
 
 int main(int argc, char *argv[]) {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    qunsetenv("LANG");
 
-    std::locale::global(std::locale(""));
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
 
