@@ -24,7 +24,7 @@ func buildWebInterceptor(t *testing.T) {
 		cmd = exec.Command("python", "build.py", "--name", webInterceptorTestName, "--win-vsbat", vsbat, "--qt-bin", qtBin)
 	} else {
 		qtBin := "/Volumes/extern-usb/Apps/Qt/6.7.3/macos/bin"
-		cmd = exec.Command("python", "build.py", "--name", webInterceptorTestName, "--qt-bin", qtBin)
+		cmd = exec.Command("python3", "build.py", "--name", webInterceptorTestName, "--qt-bin", qtBin)
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
