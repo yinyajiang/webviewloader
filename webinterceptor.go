@@ -28,13 +28,15 @@ type WebInterceptorConfig struct {
 }
 
 type WebInterceptorOptions struct {
-	UA          string
-	Title       string
-	Width       int
-	Height      int
-	Banner      string
-	BannerColor string
-	ShowAddress bool
+	UA                      string
+	Title                   string
+	Width                   int
+	Height                  int
+	Banner                  string
+	BannerColor             string
+	BannerTranslateLang     string
+	BannerTranslateLangFunc func() string `json:"-"`
+	ShowAddress             bool
 }
 
 type WebInterceptorResult struct {
@@ -72,12 +74,12 @@ func (l *WebInterceptor) CheckEnv(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *WebInterceptor) InstallEnv(checkUpdate bool, saveOpt WebInterceptorOptions) (err error) {
+func (l *WebInterceptor) InstallEnv(checkUpdate bool, saveOpt WebInterceptorOptions, bannnerTranslate map[string]string) (err error) {
 	err = l.installWebInterceptor(checkUpdate)
 	if err != nil {
 		return
 	}
-	l.saveOptions(saveOpt)
+	l.saveOptions(saveOpt, bannnerTranslate)
 	return
 }
 
@@ -246,8 +248,17 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 	return webInterceptorAppPath, false, err
 }
 
-func (l *WebInterceptor) saveOptions(opt WebInterceptorOptions) (err error) {
-	j, err := json.Marshal(opt)
+type saveOptions struct {
+	Opt              WebInterceptorOptions
+	BannnerTranslate map[string]string
+}
+
+func (l *WebInterceptor) saveOptions(opt WebInterceptorOptions, bannnerTranslate map[string]string) (err error) {
+	saveOpt := saveOptions{
+		Opt:              opt,
+		BannnerTranslate: bannnerTranslate,
+	}
+	j, err := json.Marshal(saveOpt)
 	if err != nil {
 		return
 	}
@@ -262,31 +273,39 @@ func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err er
 	if err != nil {
 		return
 	}
-	var tmp WebInterceptorOptions
-	err = json.Unmarshal(j, &tmp)
+	var saveOpt saveOptions
+	err = json.Unmarshal(j, &saveOpt)
 	if err != nil {
 		return
 	}
 	if opt.UA == "" {
-		opt.UA = tmp.UA
+		opt.UA = saveOpt.Opt.UA
 	}
 	if opt.Title == "" {
-		opt.Title = tmp.Title
+		opt.Title = saveOpt.Opt.Title
 	}
 	if opt.Width == 0 {
-		opt.Width = tmp.Width
+		opt.Width = saveOpt.Opt.Width
 	}
 	if opt.Height == 0 {
-		opt.Height = tmp.Height
+		opt.Height = saveOpt.Opt.Height
 	}
 	if opt.Banner == "" {
-		opt.Banner = tmp.Banner
+		if opt.BannerTranslateLangFunc != nil && opt.BannerTranslateLang == "" {
+			opt.BannerTranslateLang = opt.BannerTranslateLangFunc()
+		}
+		if opt.BannerTranslateLang != "" {
+			opt.Banner = saveOpt.BannnerTranslate[opt.BannerTranslateLang]
+		}
+		if opt.Banner == "" {
+			opt.Banner = saveOpt.Opt.Banner
+		}
 	}
 	if opt.BannerColor == "" {
-		opt.BannerColor = tmp.BannerColor
+		opt.BannerColor = saveOpt.Opt.BannerColor
 	}
 	if !opt.ShowAddress {
-		opt.ShowAddress = tmp.ShowAddress
+		opt.ShowAddress = saveOpt.Opt.ShowAddress
 	}
 	return
 }
