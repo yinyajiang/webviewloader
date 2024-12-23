@@ -110,7 +110,7 @@ func (l *WebView) CheckEnv(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *WebView) InstallEnv(checkUpdate bool) (err error) {
+func (l *WebView) InstallEnv(checkUpdate bool, opt WebviewOptions) (err error) {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
@@ -128,7 +128,11 @@ func (l *WebView) InstallEnv(checkUpdate bool) (err error) {
 	if componentErr != nil {
 		return componentErr
 	}
-	return webviewErr
+	if webviewErr != nil {
+		return webviewErr
+	}
+	l.saveOptions(opt)
+	return nil
 }
 
 func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
@@ -136,6 +140,7 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 	if err != nil {
 		return
 	}
+	l.loadAndMergeOptions(&opt)
 
 	args := []string{url}
 	if opt.Title != "" {
@@ -302,4 +307,40 @@ func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, e
 	}
 
 	return webviewPath, false, err
+}
+
+func (l *WebView) saveOptions(opt WebviewOptions) (err error) {
+	j, err := json.Marshal(opt)
+	if err != nil {
+		return
+	}
+	return os.WriteFile(filepath.Join(l.cfg.WebviewAppWorkDir, l.cfg.WebviewAppName+"_opt.json"), j, 0644)
+}
+
+func (l *WebView) loadAndMergeOptions(opt *WebviewOptions) (err error) {
+	if opt == nil {
+		return
+	}
+	j, err := os.ReadFile(filepath.Join(l.cfg.WebviewAppWorkDir, l.cfg.WebviewAppName+"_opt.json"))
+	if err != nil {
+		return
+	}
+	var tmp WebviewOptions
+	err = json.Unmarshal(j, &tmp)
+	if err != nil {
+		return
+	}
+	if opt.UA == "" {
+		opt.UA = tmp.UA
+	}
+	if opt.Title == "" {
+		opt.Title = tmp.Title
+	}
+	if opt.Width == 0 {
+		opt.Width = tmp.Width
+	}
+	if opt.Height == 0 {
+		opt.Height = tmp.Height
+	}
+	return
 }

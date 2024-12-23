@@ -72,8 +72,13 @@ func (l *WebInterceptor) CheckEnv(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *WebInterceptor) InstallEnv(checkUpdate bool) (err error) {
-	return l.installWebInterceptor(checkUpdate)
+func (l *WebInterceptor) InstallEnv(checkUpdate bool, saveOpt WebInterceptorOptions) (err error) {
+	err = l.installWebInterceptor(checkUpdate)
+	if err != nil {
+		return
+	}
+	l.saveOptions(saveOpt)
+	return
 }
 
 func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result WebInterceptorResult, err error) {
@@ -81,6 +86,7 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if err != nil {
 		return
 	}
+	l.loadAndMergeOptions(&opt)
 
 	args := []string{url}
 	if opt.Title != "" {
@@ -104,6 +110,7 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if opt.ShowAddress {
 		args = append(args, "--address")
 	}
+
 	webInterceptorPath, err := l.GetWebInterceptorPath()
 	if err != nil {
 		return
@@ -237,4 +244,49 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 		err = fmt.Errorf("webinterceptor app not found: %s", webInterceptorAppPath)
 	}
 	return webInterceptorAppPath, false, err
+}
+
+func (l *WebInterceptor) saveOptions(opt WebInterceptorOptions) (err error) {
+	j, err := json.Marshal(opt)
+	if err != nil {
+		return
+	}
+	return os.WriteFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_opt.json"), j, 0644)
+}
+
+func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err error) {
+	if opt == nil {
+		return
+	}
+	j, err := os.ReadFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_opt.json"))
+	if err != nil {
+		return
+	}
+	var tmp WebInterceptorOptions
+	err = json.Unmarshal(j, &tmp)
+	if err != nil {
+		return
+	}
+	if opt.UA == "" {
+		opt.UA = tmp.UA
+	}
+	if opt.Title == "" {
+		opt.Title = tmp.Title
+	}
+	if opt.Width == 0 {
+		opt.Width = tmp.Width
+	}
+	if opt.Height == 0 {
+		opt.Height = tmp.Height
+	}
+	if opt.Banner == "" {
+		opt.Banner = tmp.Banner
+	}
+	if opt.BannerColor == "" {
+		opt.BannerColor = tmp.BannerColor
+	}
+	if !opt.ShowAddress {
+		opt.ShowAddress = tmp.ShowAddress
+	}
+	return
 }
