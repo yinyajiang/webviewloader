@@ -136,13 +136,18 @@ def main():
         shutil.copy2(exe, dest)
         os.remove(exe)
 
+        # 提取qt版本
+        qt_version = subprocess.check_output(f"{args.qt_bin}/qmake.exe", "-query", "QT_VERSION").decode('utf-8').strip()
+        qt_version = re.search(r'(\d+)\.(\d+)\.\d+', qt_version).group(1)
+        print(f'qt_version: {qt_version}')
+        main_version = int(qt_version.group(1))
+        minor_version = int(qt_version.group(2))
         subprocess.run([f'{args.qt_bin}/windeployqt', dest,
                         "--dir=" + dest_dir,
                         "--release",
                         "--no-translations",
-                        "--no-virtualkeyboard",
                         "--no-compiler-runtime"
-                        ], cwd=current_dir).check_returncode()
+                        ] + (["--no-virtualkeyboard"]  if minor_version <= 5 else []), cwd=current_dir).check_returncode()
         
 
         shutil.make_archive(os.path.join(current_dir, "dist", args.name), 'zip', dest_dir)
