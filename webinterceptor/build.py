@@ -107,6 +107,7 @@ def main():
 
 
     if not isWin:
+        subprocess.run(['make', "clean"], cwd=current_dir)
         subprocess.run([f'{args.qt_bin}/qmake', 'webinterceptor_build.pro'], cwd=current_dir).check_returncode()
         subprocess.run(['make'], cwd=current_dir).check_returncode()
         subprocess.run([f'{args.qt_bin}/macdeployqt', f'dist/{args.name}.app',
@@ -123,6 +124,7 @@ def main():
         with open(f"dist/{args.name}.app.zip.md5", 'w') as file:
             file.write(f"{args.name}.app.zip: " +  hashlib.md5(open(f"dist/{args.name}.app.zip", 'rb').read()).hexdigest())
     else:
+        subprocess.run(['nmake', "clean"], cwd=current_dir)
         subprocess.run([f'{args.qt_bin}/qmake', 'webinterceptor_build.pro'], cwd=current_dir).check_returncode()
         subprocess.run(['nmake'], cwd=current_dir).check_returncode()
         exe = os.path.join(current_dir, "dist", args.name + ".exe")
