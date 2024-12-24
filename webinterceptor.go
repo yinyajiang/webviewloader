@@ -28,17 +28,16 @@ type WebInterceptorConfig struct {
 }
 
 type WebInterceptorOptions struct {
-	UA                      string
-	Title                   string
-	Width                   int
-	Height                  int
-	Banner                  string
-	BannerColor             string
-	BannerFontColor         string
-	BannerTranslateLang     string
-	BannerTranslateLangFunc func() string `json:"-"`
-	ShowAddress             bool
-	WindowsColor            string
+	UA                  string
+	Title               string
+	Width               int
+	Height              int
+	Banner              string
+	BannerColor         string
+	BannerFontColor     string
+	BannerTranslateLang string
+	ShowAddress         bool
+	WindowsColor        string
 }
 
 type WebInterceptorResult struct {
@@ -83,6 +82,10 @@ func (l *WebInterceptor) InstallEnv(checkUpdate bool, saveOpt WebInterceptorOpti
 	}
 	l.saveOptions(saveOpt, bannnerTranslate)
 	return
+}
+
+func (l *WebInterceptor) SetDefaultBannerLang(lang string) {
+	l.setDefaultBannerLang(lang)
 }
 
 func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result WebInterceptorResult, err error) {
@@ -307,8 +310,8 @@ func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err er
 		opt.Height = saveOpt.Opt.Height
 	}
 	if opt.Banner == "" {
-		if opt.BannerTranslateLangFunc != nil && opt.BannerTranslateLang == "" {
-			opt.BannerTranslateLang = opt.BannerTranslateLangFunc()
+		if opt.BannerTranslateLang == "" {
+			opt.BannerTranslateLang = l.getDefaultBannerLang()
 		}
 		if opt.BannerTranslateLang != "" {
 			opt.Banner = saveOpt.BannnerTranslate[opt.BannerTranslateLang]
@@ -329,5 +332,14 @@ func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err er
 	if opt.BannerFontColor == "" {
 		opt.BannerFontColor = saveOpt.Opt.BannerFontColor
 	}
+	return
+}
+
+func (l *WebInterceptor) setDefaultBannerLang(lang string) (err error) {
+	return os.WriteFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_default_lang"), []byte(lang), 0644)
+}
+
+func (l *WebInterceptor) getDefaultBannerLang() (lang string) {
+	lang, _ = fileutil.ReadFileToString(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_default_lang"))
 	return
 }
