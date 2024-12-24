@@ -138,7 +138,7 @@ def main():
 
         # 提取qt版本
         qt_version = subprocess.check_output([f"{args.qt_bin}/qmake.exe", "-query", "QT_VERSION"]).decode('utf-8').strip()
-        qt_version = re.search(r'(\d+)\.(\d+)\.\d+', qt_version).group(1)
+        qt_version = re.search(r'(\d+)\.(\d+)\.\d+', qt_version)
         print(f'qt_version: {qt_version}')
         main_version = int(qt_version.group(1))
         minor_version = int(qt_version.group(2))
