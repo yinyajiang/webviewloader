@@ -11,11 +11,15 @@
 
 Browser::Browser(const QString& url, const QString& title, const QString& ua,
                  int width, int height, const QString& banner,
-                 const QString& bannerColor, bool showAddress)
+                 const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor)
     : QMainWindow() {
     setWindowTitle(title);
 
     QWidget* centralWidget = new QWidget(this);
+    if(!winColor.isEmpty() && winColor != "none" && winColor != "null"){
+        centralWidget->setStyleSheet(QString("QWidget { background-color: %1;}").arg(winColor));
+    }
+
     setCentralWidget(centralWidget);
 
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
@@ -61,7 +65,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
     m_bannerLabel->setStyleSheet(QString(
                                    "QLabel {"
                                    "    background-color: %1;"
-                                   "    color: #F9F9F9;"
+                                   "    color: %2;"
                                    "    padding: 6px 20px;"
                                    "    font-size: 14px;"
                                    "    font-weight: bold;"
@@ -73,7 +77,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
                                    "QLabel::first-letter {"
                                    "    font-size: 14px;"
                                    "    margin-right: 8px;"
-                                   "}").arg(bannerColor));
+                                     "}").arg(bannerColor).arg(bannerFontColor));
     m_bannerLabel->setMaximumHeight(40);
 
     layout->addWidget(m_bannerLabel);

@@ -34,9 +34,11 @@ type WebInterceptorOptions struct {
 	Height                  int
 	Banner                  string
 	BannerColor             string
+	BannerFontColor         string
 	BannerTranslateLang     string
 	BannerTranslateLangFunc func() string `json:"-"`
 	ShowAddress             bool
+	WindowsColor            string
 }
 
 type WebInterceptorResult struct {
@@ -112,7 +114,12 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if opt.ShowAddress {
 		args = append(args, "--address")
 	}
-
+	if opt.WindowsColor != "" {
+		args = append(args, "--win-color", opt.WindowsColor)
+	}
+	if opt.BannerFontColor != "" {
+		args = append(args, "--banner-font-color", opt.BannerFontColor)
+	}
 	webInterceptorPath, err := l.GetWebInterceptorPath()
 	if err != nil {
 		return
@@ -306,6 +313,12 @@ func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err er
 	}
 	if !opt.ShowAddress {
 		opt.ShowAddress = saveOpt.Opt.ShowAddress
+	}
+	if opt.WindowsColor == "" {
+		opt.WindowsColor = saveOpt.Opt.WindowsColor
+	}
+	if opt.BannerFontColor == "" {
+		opt.BannerFontColor = saveOpt.Opt.BannerFontColor
 	}
 	return
 }
