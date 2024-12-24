@@ -95,6 +95,8 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if opt.WindowsColor == "" {
 		if isWindows() {
 			opt.WindowsColor = "rgb(76,74,72)"
+		} else {
+			opt.WindowsColor = "rgb(50,50,50)"
 		}
 	}
 
