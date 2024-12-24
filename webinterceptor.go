@@ -92,6 +92,12 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	}
 	l.loadAndMergeOptions(&opt)
 
+	if opt.WindowsColor == "" {
+		if isWindows() {
+			opt.WindowsColor = "rgb(76,74,72)"
+		}
+	}
+
 	args := []string{url}
 	if opt.Title != "" {
 		args = append(args, "--title", opt.Title)
@@ -120,6 +126,7 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if opt.BannerFontColor != "" {
 		args = append(args, "--banner-font-color", opt.BannerFontColor)
 	}
+
 	webInterceptorPath, err := l.GetWebInterceptorPath()
 	if err != nil {
 		return
