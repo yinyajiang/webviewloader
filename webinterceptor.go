@@ -28,16 +28,15 @@ type WebInterceptorConfig struct {
 }
 
 type WebInterceptorOptions struct {
-	UA                  string
-	Title               string
-	Width               int
-	Height              int
-	Banner              string
-	BannerColor         string
-	BannerFontColor     string
-	BannerTranslateLang string
-	ShowAddress         bool
-	WindowsColor        string
+	UA              string
+	Title           string
+	Width           int
+	Height          int
+	Banner          string
+	BannerColor     string
+	BannerFontColor string
+	ShowAddress     bool
+	WindowsColor    string
 }
 
 type WebInterceptorResult struct {
@@ -75,17 +74,12 @@ func (l *WebInterceptor) CheckEnv(checkUpdate bool) (err error) {
 	return
 }
 
-func (l *WebInterceptor) InstallEnv(checkUpdate bool, saveOpt WebInterceptorOptions, bannnerTranslate map[string]string) (err error) {
+func (l *WebInterceptor) InstallEnv(checkUpdate bool) (err error) {
 	err = l.installWebInterceptor(checkUpdate)
 	if err != nil {
 		return
 	}
-	l.saveOptions(saveOpt, bannnerTranslate)
 	return
-}
-
-func (l *WebInterceptor) SetDefaultBannerLang(lang string) {
-	l.setDefaultBannerLang(lang)
 }
 
 func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result WebInterceptorResult, err error) {
@@ -93,7 +87,6 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	if err != nil {
 		return
 	}
-	l.loadAndMergeOptions(&opt)
 
 	if opt.WindowsColor == "" {
 		if isWindows() {
@@ -265,81 +258,4 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 		err = fmt.Errorf("webinterceptor app not found: %s", webInterceptorAppPath)
 	}
 	return webInterceptorAppPath, false, err
-}
-
-type saveOptions struct {
-	Opt              WebInterceptorOptions
-	BannnerTranslate map[string]string
-}
-
-func (l *WebInterceptor) saveOptions(opt WebInterceptorOptions, bannnerTranslate map[string]string) (err error) {
-	saveOpt := saveOptions{
-		Opt:              opt,
-		BannnerTranslate: bannnerTranslate,
-	}
-	j, err := json.Marshal(saveOpt)
-	if err != nil {
-		return
-	}
-	return os.WriteFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_opt.json"), j, 0644)
-}
-
-func (l *WebInterceptor) loadAndMergeOptions(opt *WebInterceptorOptions) (err error) {
-	if opt == nil {
-		return
-	}
-	j, err := os.ReadFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_opt.json"))
-	if err != nil {
-		return
-	}
-	var saveOpt saveOptions
-	err = json.Unmarshal(j, &saveOpt)
-	if err != nil {
-		return
-	}
-	if opt.UA == "" {
-		opt.UA = saveOpt.Opt.UA
-	}
-	if opt.Title == "" {
-		opt.Title = saveOpt.Opt.Title
-	}
-	if opt.Width == 0 {
-		opt.Width = saveOpt.Opt.Width
-	}
-	if opt.Height == 0 {
-		opt.Height = saveOpt.Opt.Height
-	}
-	if opt.Banner == "" {
-		if opt.BannerTranslateLang == "" {
-			opt.BannerTranslateLang = l.getDefaultBannerLang()
-		}
-		if opt.BannerTranslateLang != "" {
-			opt.Banner = saveOpt.BannnerTranslate[opt.BannerTranslateLang]
-		}
-		if opt.Banner == "" {
-			opt.Banner = saveOpt.Opt.Banner
-		}
-	}
-	if opt.BannerColor == "" {
-		opt.BannerColor = saveOpt.Opt.BannerColor
-	}
-	if !opt.ShowAddress {
-		opt.ShowAddress = saveOpt.Opt.ShowAddress
-	}
-	if opt.WindowsColor == "" {
-		opt.WindowsColor = saveOpt.Opt.WindowsColor
-	}
-	if opt.BannerFontColor == "" {
-		opt.BannerFontColor = saveOpt.Opt.BannerFontColor
-	}
-	return
-}
-
-func (l *WebInterceptor) setDefaultBannerLang(lang string) (err error) {
-	return os.WriteFile(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_default_lang"), []byte(lang), 0644)
-}
-
-func (l *WebInterceptor) getDefaultBannerLang() (lang string) {
-	lang, _ = fileutil.ReadFileToString(filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+"_default_lang"))
-	return
 }

@@ -76,7 +76,7 @@ func TestWebInterceptor(m *testing.T) {
 	if useLast {
 		m.Fatal("should not use last")
 	}
-	if err := l.InstallEnv(true, WebInterceptorOptions{}, nil); err != nil {
+	if err := l.InstallEnv(true); err != nil {
 		m.Fatal(err)
 	}
 

@@ -140,7 +140,7 @@ func TestWebView(m *testing.T) {
 	if useLast {
 		m.Fatal("should not use last")
 	}
-	if err := l.InstallEnv(true, WebviewOptions{}); err != nil {
+	if err := l.InstallEnv(true); err != nil {
 		m.Fatal(err)
 	}
 
