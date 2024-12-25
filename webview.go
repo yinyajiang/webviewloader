@@ -283,7 +283,9 @@ func (l *WebView) getWebviewPath(checkUpdate bool, enableDownload bool) (path st
 
 	tempPath := webviewPath + ".temp"
 	os.Remove(tempPath)
+
 	err = downloadFile(url, tempPath)
+
 	if err != nil {
 		fmt.Printf("download webview failed: %v, %s\n", err, url)
 		if exist {

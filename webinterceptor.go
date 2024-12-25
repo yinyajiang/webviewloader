@@ -232,7 +232,11 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate, enableDownload bool)
 
 	tempPath := filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+".temp")
 	os.Remove(tempPath)
-	err = downloadFile(url, tempPath)
+	if l.cfg.CustomDownloadFileFunc != nil {
+		err = l.cfg.CustomDownloadFileFunc(url, tempPath)
+	} else {
+		err = downloadFile(url, tempPath)
+	}
 	if err != nil {
 		fmt.Printf("download webview failed: %v, %s\n", err, url)
 		if exist {
