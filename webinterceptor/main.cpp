@@ -9,6 +9,8 @@
     #include <fcntl.h>
 #endif
 
+QString decodeMaybeBase64(QString base64);
+
 int main(int argc, char *argv[]) {
     qunsetenv("LANG");
     #ifdef _WIN32
@@ -58,11 +60,11 @@ int main(int argc, char *argv[]) {
 
     Browser browser(
         url,
-        title,
+        decodeMaybeBase64(parser.value("title")),
         parser.value("ua"),
         parser.value("width").toInt(),
         parser.value("height").toInt(),
-        parser.value("banner"),
+        decodeMaybeBase64(parser.value("banner")),
         parser.value("banner-color"),
         parser.isSet("address"),
         parser.value("win-color"),
@@ -71,4 +73,15 @@ int main(int argc, char *argv[]) {
 
     browser.show();
     return app.exec();
+}
+
+
+QString decodeMaybeBase64(QString base64) {
+    if(base64.startsWith("base64://")) {
+        base64 = base64.mid(QString("base64://").length());
+    }else{
+        return base64;
+    }
+    QByteArray decoded = QByteArray::fromBase64(base64.toUtf8());
+    return QString::fromUtf8(decoded);
 }
