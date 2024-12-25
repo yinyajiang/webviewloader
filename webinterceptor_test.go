@@ -69,7 +69,7 @@ func TestWebInterceptor(m *testing.T) {
 	if build {
 		buildWebInterceptor(m)
 	}
-	firstPath, useLast, err := l.getWebInterceptorPath(true)
+	firstPath, useLast, err := l.getWebInterceptorPath(true, true)
 	if err != nil {
 		m.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestWebInterceptor(m *testing.T) {
 	}
 
 	l2 := NewWebInterceptor(cfg)
-	secondPath, useLast, err := l2.getWebInterceptorPath(true)
+	secondPath, useLast, err := l2.getWebInterceptorPath(true, true)
 	if err != nil {
 		m.Fatal(err)
 	}

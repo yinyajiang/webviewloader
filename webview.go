@@ -102,10 +102,10 @@ func (l *WebView) HasMustCfg() bool {
 	return l.cfg.MacWebviewAppURI != ""
 }
 
-func (l *WebView) CheckEnv(checkUpdate bool) (err error) {
+func (l *WebView) CheckEnv(checkUpdate, enableDownload bool) (err error) {
 	err = checkWebviewComponent()
 	if err == nil {
-		_, _, err = l.getWebviewPath(checkUpdate)
+		_, _, err = l.getWebviewPath(checkUpdate, enableDownload)
 	}
 	return
 }
@@ -136,7 +136,7 @@ func (l *WebView) InstallEnv(checkUpdate bool) (err error) {
 }
 
 func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, err error) {
-	err = l.CheckEnv(false)
+	err = l.CheckEnv(false, false)
 	if err != nil {
 		return
 	}
@@ -184,7 +184,7 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 }
 
 func (l *WebView) GetWebviewPath() (path string, err error) {
-	path, _, err = l.getWebviewPath(false)
+	path, _, err = l.getWebviewPath(false, false)
 	return
 }
 
@@ -202,7 +202,7 @@ func (l *WebView) installWebview(checkUpdate bool) (err error) {
 		return
 	}
 	defer mutexRelease(releaser)
-	_, _, err = l.getWebviewPath(checkUpdate)
+	_, _, err = l.getWebviewPath(checkUpdate, true)
 	return
 }
 
@@ -211,7 +211,7 @@ func (l *WebView) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
 	return releaser, err
 }
 
-func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, err error) {
+func (l *WebView) getWebviewPath(checkUpdate bool, enableDownload bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.webviewPath != "" && fileutil.IsExist(l.webviewPath) {
@@ -261,6 +261,14 @@ func (l *WebView) getWebviewPath(checkUpdate bool) (path string, useLast bool, e
 			return webviewPath, true, nil
 		}
 		exist = true
+
+		if !enableDownload {
+			return webviewPath, true, nil
+		}
+	} else {
+		if !enableDownload {
+			return webviewPath, true, fmt.Errorf("webview not found: %s", webviewPath)
+		}
 	}
 
 	url := l.cfg.MacWebviewAppURI

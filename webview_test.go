@@ -133,7 +133,7 @@ func TestWebView(m *testing.T) {
 	if build {
 		buildWebview(m)
 	}
-	firstPath, useLast, err := l.getWebviewPath(true)
+	firstPath, useLast, err := l.getWebviewPath(true, true)
 	if err != nil {
 		m.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func TestWebView(m *testing.T) {
 	}
 
 	l2 := NewWebview(cfg)
-	secondPath, useLast, err := l2.getWebviewPath(true)
+	secondPath, useLast, err := l2.getWebviewPath(true, true)
 	if err != nil {
 		m.Fatal(err)
 	}

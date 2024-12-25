@@ -69,8 +69,8 @@ func (l *WebInterceptor) HasMustCfg() bool {
 	return l.cfg.MacWebInterceptorAppURI != ""
 }
 
-func (l *WebInterceptor) CheckEnv(checkUpdate bool) (err error) {
-	_, _, err = l.getWebInterceptorPath(checkUpdate)
+func (l *WebInterceptor) CheckEnv(checkUpdate bool, enableDownload bool) (err error) {
+	_, _, err = l.getWebInterceptorPath(checkUpdate, enableDownload)
 	return
 }
 
@@ -83,7 +83,7 @@ func (l *WebInterceptor) InstallEnv(checkUpdate bool) (err error) {
 }
 
 func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result WebInterceptorResult, err error) {
-	err = l.CheckEnv(false)
+	err = l.CheckEnv(false, false)
 	if err != nil {
 		return
 	}
@@ -151,7 +151,7 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 }
 
 func (l *WebInterceptor) GetWebInterceptorPath() (path string, err error) {
-	path, _, err = l.getWebInterceptorPath(false)
+	path, _, err = l.getWebInterceptorPath(false, false)
 	return
 }
 
@@ -161,7 +161,7 @@ func (l *WebInterceptor) installWebInterceptor(checkUpdate bool) (err error) {
 		return
 	}
 	defer mutexRelease(releaser)
-	_, _, err = l.getWebInterceptorPath(checkUpdate)
+	_, _, err = l.getWebInterceptorPath(checkUpdate, true)
 	return
 }
 
@@ -170,7 +170,7 @@ func (l *WebInterceptor) getGlobalMutexLock() (releaser mutex.Releaser, err erro
 	return releaser, err
 }
 
-func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, useLast bool, err error) {
+func (l *WebInterceptor) getWebInterceptorPath(checkUpdate, enableDownload bool) (path string, useLast bool, err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.webInterceptorPath != "" && fileutil.IsExist(l.webInterceptorPath) {
@@ -215,6 +215,14 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate bool) (path string, u
 			return webInterceptorAppPath, true, nil
 		}
 		exist = true
+
+		if !enableDownload {
+			return webInterceptorAppPath, true, nil
+		}
+	} else {
+		if !enableDownload {
+			return webInterceptorAppPath, false, fmt.Errorf("webinterceptor not found: %s", webInterceptorAppPath)
+		}
 	}
 
 	url := l.cfg.MacWebInterceptorAppURI
