@@ -166,7 +166,12 @@ func (l *WebInterceptor) installWebInterceptor(checkUpdate bool) (err error) {
 }
 
 func (l *WebInterceptor) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
-	releaser, err = mutexAcquire("install-"+l.cfg.WebInterceptorAppName, time.Minute*30)
+	now := time.Now()
+	releaser, err = mutexAcquire("install-"+l.cfg.WebInterceptorAppName, time.Minute*60)
+	dur := time.Since(now)
+	if dur > time.Second*10 {
+		fmt.Printf("WebInterceptor global mutex acquire time: %v\n", dur)
+	}
 	return releaser, err
 }
 

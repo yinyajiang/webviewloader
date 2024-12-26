@@ -207,7 +207,12 @@ func (l *WebView) installWebview(checkUpdate bool) (err error) {
 }
 
 func (l *WebView) getGlobalMutexLock() (releaser mutex.Releaser, err error) {
-	releaser, err = mutexAcquire("install-"+l.cfg.WebviewAppName, time.Minute*10)
+	now := time.Now()
+	releaser, err = mutexAcquire("install-"+l.cfg.WebviewAppName, time.Minute*15)
+	dur := time.Since(now)
+	if dur > time.Second*10 {
+		fmt.Printf("Webview global mutex acquire time: %v\n", dur)
+	}
 	return releaser, err
 }
 
