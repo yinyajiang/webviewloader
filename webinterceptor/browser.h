@@ -28,5 +28,4 @@ private:
     QWebEnginePage* m_page = nullptr;
     WebInterceptor* m_profile = nullptr;
     QLineEdit* m_urlEdit = nullptr;
-    QLabel* m_bannerLabel = nullptr;
 };

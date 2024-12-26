@@ -59,10 +59,10 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
         layout->addLayout(addressLayout);
     }
 
-    QString bannerText = QString("▶   %1").arg(banner);
-    m_bannerLabel = new QLabel(bannerText, this);
-    m_bannerLabel->setAlignment(Qt::AlignCenter);
-    m_bannerLabel->setStyleSheet(QString(
+    QString bannerText = QString("%1").arg(banner);
+    QLabel* bannerLabel = new QLabel(bannerText, this);
+    bannerLabel->setAlignment(Qt::AlignCenter);
+    bannerLabel->setStyleSheet(QString(
                                    "QLabel {"
                                    "    background-color: %1;"
                                    "    color: %2;"
@@ -78,9 +78,9 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
                                    "    font-size: 14px;"
                                    "    margin-right: 8px;"
                                      "}").arg(bannerColor).arg(bannerFontColor));
-    m_bannerLabel->setMaximumHeight(40);
+    bannerLabel->setMaximumHeight(40);
 
-    layout->addWidget(m_bannerLabel);
+    layout->addWidget(bannerLabel);
 
     m_webView = new QWebEngineView(this);
     m_profile = new WebInterceptor(ua, m_webView, this);
