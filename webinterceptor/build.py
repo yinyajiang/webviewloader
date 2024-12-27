@@ -9,7 +9,7 @@ import re
 import subprocess
 import requests
 import hashlib
-
+import time
 
 def check_cert_valid(cert): 
     prename='Developer ID Application:'
@@ -123,6 +123,7 @@ def main():
         print(f'zip success')
         with open(f"dist/{args.name}.app.zip.md5", 'w') as file:
             file.write(f"{args.name}.app.zip: " +  hashlib.md5(open(f"dist/{args.name}.app.zip", 'rb').read()).hexdigest())
+            file.write(f"\n{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     else:
         subprocess.run(['nmake', "clean"], cwd=current_dir)
         subprocess.run([f'{args.qt_bin}/qmake', 'webinterceptor_build.pro'], cwd=current_dir).check_returncode()
@@ -155,6 +156,7 @@ def main():
         shutil.make_archive(os.path.join(current_dir, "dist", args.name), 'zip', dest_dir)
         with open(f"dist/{args.name}.zip.md5", 'w') as file:
             file.write(f"{args.name}.zip: " +  hashlib.md5(open(f"dist/{args.name}.zip", 'rb').read()).hexdigest())
+            file.write(f"\n{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
           
     # 删除临时文件
     os.remove('webinterceptor_build.pro')
