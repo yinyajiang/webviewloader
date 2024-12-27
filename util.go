@@ -44,6 +44,10 @@ func downloadString(uri string) (string, error) {
 }
 
 func downloadFile(uri, path string) error {
+	if uri == "" {
+		return fmt.Errorf("uri is empty")
+	}
+
 	if !strings.HasPrefix(uri, "http") {
 		fileutil.CreateDir(filepath.Dir(path))
 		return fileutil.CopyFile(uri, path)

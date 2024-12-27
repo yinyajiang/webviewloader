@@ -56,7 +56,11 @@ func installWebviewComponent(cfg WebviewConfig) (err error) {
 	name := findName(url)
 	dest := filepath.Join(cfg.WebviewAppWorkDir, "webview2", name)
 	if cfg.CustomDownloadFileFunc != nil {
-		err = cfg.CustomDownloadFileFunc(url, dest)
+		if url == "" {
+			err = fmt.Errorf("uri is empty")
+		} else {
+			err = cfg.CustomDownloadFileFunc(url, dest)
+		}
 	} else {
 		err = downloadFile(url, dest)
 	}

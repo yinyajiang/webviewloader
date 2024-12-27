@@ -239,7 +239,11 @@ func (l *WebInterceptor) getWebInterceptorPath(checkUpdate, enableDownload bool)
 	tempPath := filepath.Join(l.cfg.WebInterceptorAppWorkDir, l.cfg.WebInterceptorAppName+".temp")
 	os.Remove(tempPath)
 	if l.cfg.CustomDownloadFileFunc != nil {
-		err = l.cfg.CustomDownloadFileFunc(url, tempPath)
+		if url == "" {
+			err = fmt.Errorf("uri is empty")
+		} else {
+			err = l.cfg.CustomDownloadFileFunc(url, tempPath)
+		}
 	} else {
 		err = downloadFile(url, tempPath)
 	}
