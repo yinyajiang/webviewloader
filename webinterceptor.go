@@ -43,6 +43,7 @@ type WebInterceptorResult struct {
 	UA      string            `json:"ua"`
 	URL     string            `json:"url"`
 	Headers map[string]string `json:"headers"`
+	Title   string            `json:"title"`
 }
 
 type WebInterceptor struct {
