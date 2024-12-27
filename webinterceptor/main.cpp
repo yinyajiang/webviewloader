@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     parser.addOption(QCommandLineOption("address", "Show address bar"));
     parser.addOption(QCommandLineOption("banner-font-color", "Banner font color", "color", "#F9F9F9"));
     parser.addOption(QCommandLineOption("win-color", "Windows color", "color", "#121212"));
+    parser.addOption(QCommandLineOption("forever", "Run forever"));
 
     parser.process(app);
 
@@ -68,7 +69,8 @@ int main(int argc, char *argv[]) {
         parser.value("banner-color"),
         parser.isSet("address"),
         parser.value("win-color"),
-        parser.value("banner-font-color")
+        parser.value("banner-font-color"),
+        parser.isSet("forever")
     );
 
     browser.show();

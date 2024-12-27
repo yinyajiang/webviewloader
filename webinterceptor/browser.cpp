@@ -11,7 +11,7 @@
 
 Browser::Browser(const QString& url, const QString& title, const QString& ua,
                  int width, int height, const QString& banner,
-                 const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor)
+                 const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor, bool isforever)
     : QMainWindow() {
     setWindowTitle(title);
 
@@ -83,7 +83,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
     layout->addWidget(bannerLabel);
 
     m_webView = new QWebEngineView(this);
-    m_profile = new WebInterceptor(ua, m_webView, this);
+    m_profile = new WebInterceptor(ua, m_webView, this, isforever);
     m_page = new QWebEnginePage(m_profile, this);
     connect(m_page, &QWebEnginePage::urlChanged, this, &Browser::urlChanged);
     m_webView->setPage(m_page);

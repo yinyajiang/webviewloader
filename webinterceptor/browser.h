@@ -13,7 +13,7 @@ class Browser : public QMainWindow {
 public:
     Browser(const QString& url, const QString& title, const QString& ua,
             int width, int height, const QString& banner,
-            const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor);
+            const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor, bool isforever);
     ~Browser();
 
 protected:

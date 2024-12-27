@@ -7,10 +7,11 @@
 #include <QNetworkCookie>
 
 
-UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, QObject* parent)
+UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, QObject* parent, bool isforever)
     : QWebEngineUrlRequestInterceptor(parent)
     , m_profile(profile)
-    , m_webView(webView) {
+    , m_webView(webView)
+    , m_forever(isforever) {
 
     connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieAdded,
             this, [this](const QNetworkCookie& cookie) {
@@ -58,7 +59,9 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {
         QJsonDocument doc(obj);
         std::cout << doc.toJson(QJsonDocument::Compact).toStdString() << std::endl;
         std::cout.flush();
-        QCoreApplication::exit(0);
+        if(!m_forever){
+            QCoreApplication::exit(0);
+        }
     }
 }
 
@@ -79,9 +82,9 @@ bool UrlRequestInterceptor::isPlayable(const QString& urlString) const {
 }
 
 
-WebInterceptor::WebInterceptor(const QString& ua, QWebEngineView* webView, QObject* parent)
+WebInterceptor::WebInterceptor(const QString& ua, QWebEngineView* webView, QObject* parent, bool isforever)
     : QWebEngineProfile(parent) {
-    m_interceptor = new UrlRequestInterceptor(this, webView, this);
+    m_interceptor = new UrlRequestInterceptor(this, webView, this, isforever);
     setUrlRequestInterceptor(m_interceptor);
     setSpellCheckEnabled(false);
     
