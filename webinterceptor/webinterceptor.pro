@@ -28,5 +28,6 @@ SOURCES += \
 
 HEADERS += \
     browser.h \
-    webinterceptor.h
+    webinterceptor.h \
+    opt.h
 

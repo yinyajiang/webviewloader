@@ -7,11 +7,11 @@
 #include <QNetworkCookie>
 
 
-UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, QObject* parent, bool isforever)
-    : QWebEngineUrlRequestInterceptor(parent)
+UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, Options opt)
+    : QWebEngineUrlRequestInterceptor(profile)
     , m_profile(profile)
     , m_webView(webView)
-    , m_forever(isforever) {
+    , m_opt(opt){
 
     connect(m_profile->cookieStore(), &QWebEngineCookieStore::cookieAdded,
             this, [this](const QNetworkCookie& cookie) {
@@ -29,7 +29,7 @@ UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEng
 
 void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {
     QString url = info.requestUrl().toString();
-    if (isPlayable(url)) {
+    if (isPlayable(url) && (m_allUrls.empty() || !m_allUrls.contains(url)) ) {
         QJsonObject obj;
         obj["url"] = url;
         obj["method"] = QString::fromUtf8(info.requestMethod());
@@ -59,8 +59,10 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {
         QJsonDocument doc(obj);
         std::cout << doc.toJson(QJsonDocument::Compact).toStdString() << std::endl;
         std::cout.flush();
-        if(!m_forever){
+        if(!m_opt.isforever){
             QCoreApplication::exit(0);
+        }else{
+            m_allUrls.insert(url);
         }
     }
 }
@@ -82,14 +84,14 @@ bool UrlRequestInterceptor::isPlayable(const QString& urlString) const {
 }
 
 
-WebInterceptor::WebInterceptor(const QString& ua, QWebEngineView* webView, QObject* parent, bool isforever)
-    : QWebEngineProfile(parent) {
-    m_interceptor = new UrlRequestInterceptor(this, webView, this, isforever);
+WebInterceptor::WebInterceptor(QWebEngineView* webView, Options opt)
+    : QWebEngineProfile(webView) {
+    m_interceptor = new UrlRequestInterceptor(this, webView, opt);
     setUrlRequestInterceptor(m_interceptor);
     setSpellCheckEnabled(false);
     
-    if (!ua.isEmpty()) {
-        setHttpUserAgent(ua);
+    if (!opt.ua.isEmpty()) {
+        setHttpUserAgent(opt.ua);
     }
 
     settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, true);

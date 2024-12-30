@@ -5,15 +5,14 @@
 #include <QWebEnginePage>
 #include <QLineEdit>
 #include <QLabel>
+#include "opt.h"
 
 class WebInterceptor;
 
 class Browser : public QMainWindow {
     Q_OBJECT
 public:
-    Browser(const QString& url, const QString& title, const QString& ua,
-            int width, int height, const QString& banner,
-            const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor, bool isforever);
+    Browser(Options opt);
     ~Browser();
 
 protected:

@@ -59,20 +59,20 @@ int main(int argc, char *argv[]) {
         app.setWindowIcon(QIcon(iconPath));
     }
 
-    Browser browser(
-        url,
-        decodeMaybeBase64(parser.value("title")),
-        parser.value("ua"),
-        parser.value("width").toInt(),
-        parser.value("height").toInt(),
-        decodeMaybeBase64(parser.value("banner")),
-        parser.value("banner-color"),
-        parser.isSet("address"),
-        parser.value("win-color"),
-        parser.value("banner-font-color"),
-        parser.isSet("forever")
-    );
+    Options opt;
+    opt.url = url;
+    opt.title = decodeMaybeBase64(title);
+    opt.ua = parser.value("ua");
+    opt.width = parser.value("width").toInt();
+    opt.height = parser.value("height").toInt();
+    opt.banner = decodeMaybeBase64(parser.value("banner"));
+    opt.bannerColor = parser.value("banner-color");
+    opt.bannerFontColor = parser.value("banner-font-color");
+    opt.showAddress = parser.isSet("address");
+    opt.winColor = parser.value("win-color");
+    opt.isforever = parser.isSet("forever");
 
+    Browser browser(opt);
     browser.show();
     return app.exec();
 }

@@ -9,25 +9,23 @@
 #include "webinterceptor.h"
 
 
-Browser::Browser(const QString& url, const QString& title, const QString& ua,
-                 int width, int height, const QString& banner,
-                 const QString& bannerColor, bool showAddress, const QString& winColor, const QString& bannerFontColor, bool isforever)
+Browser::Browser(Options opt)
     : QMainWindow() {
-    setWindowTitle(title);
+    setWindowTitle(opt.title);
 
     QWidget* centralWidget = new QWidget(this);
-    if(!winColor.isEmpty() && winColor != "none" && winColor != "null"){
-        centralWidget->setStyleSheet(QString("QWidget { background-color: %1;}").arg(winColor));
+    if(!opt.winColor.isEmpty() && opt.winColor != "none" && opt.winColor != "null"){
+        centralWidget->setStyleSheet(QString("QWidget { background-color: %1;}").arg(opt.winColor));
     }
 
     setCentralWidget(centralWidget);
 
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
 
-    if (showAddress) {
+    if (opt.showAddress) {
         QHBoxLayout* addressLayout = new QHBoxLayout();
         m_urlEdit = new QLineEdit(this);
-        m_urlEdit->setText(url);
+        m_urlEdit->setText(opt.url);
         m_urlEdit->setStyleSheet(QString(
                                    "QLineEdit {"
                                    "    padding: 6px 20px;"
@@ -35,7 +33,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
                                    "    border-radius: 3px;"
                                    "    border: 1px solid %1;"
                                    "    margin-right: 5px;"
-                                   "}").arg(bannerColor));
+                                   "}").arg(opt.bannerColor));
 
         QPushButton* loadButton = new QPushButton("Go", this);
         loadButton->setStyleSheet(QString(
@@ -49,7 +47,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
                                       "}"
                                       "QPushButton:hover {"
                                       "    background-color: #ff6668;"
-                                      "}").arg(bannerColor));
+                                      "}").arg(opt.bannerColor));
 
         connect(loadButton, &QPushButton::clicked, this, &Browser::loadUrl);
 
@@ -59,7 +57,7 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
         layout->addLayout(addressLayout);
     }
 
-    QString bannerText = QString("%1").arg(banner);
+    QString bannerText = QString("%1").arg(opt.banner);
     QLabel* bannerLabel = new QLabel(bannerText, this);
     bannerLabel->setAlignment(Qt::AlignCenter);
     bannerLabel->setStyleSheet(QString(
@@ -77,13 +75,13 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
                                    "QLabel::first-letter {"
                                    "    font-size: 14px;"
                                    "    margin-right: 8px;"
-                                     "}").arg(bannerColor).arg(bannerFontColor));
+                                     "}").arg(opt.bannerColor).arg(opt.bannerFontColor));
     bannerLabel->setMaximumHeight(40);
 
     layout->addWidget(bannerLabel);
 
     m_webView = new QWebEngineView(this);
-    m_profile = new WebInterceptor(ua, m_webView, this, isforever);
+    m_profile = new WebInterceptor(m_webView, opt);
     m_page = new QWebEnginePage(m_profile, this);
     connect(m_page, &QWebEnginePage::urlChanged, this, &Browser::urlChanged);
     m_webView->setPage(m_page);
@@ -92,8 +90,8 @@ Browser::Browser(const QString& url, const QString& title, const QString& ua,
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    resize(width, height);
-    m_webView->load(QUrl(url));
+    resize(opt.width, opt.height);
+    m_webView->load(QUrl(opt.url));
 }
 
 Browser::~Browser() {
