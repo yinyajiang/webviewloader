@@ -26,6 +26,22 @@ def get_cookies_nm(window):
         nm[k] = v
     return nm
 
+
+def parse_cookie_expires(cookie):
+    if cookie and 'expires' in cookie and cookie['expires']:
+        if isinstance(cookie['expires'], int):
+            return cookie['expires']
+        try:
+            return int(datetime.datetime.strptime(str(cookie['expires']), "%a, %d %b %Y %H:%M:%S %Z").timestamp())
+        except Exception:
+            pass
+        try:
+            return int(datetime.datetime.strptime(str(cookie['expires']), "%Y-%m-%d %H:%M:%S %z").timestamp())
+        except Exception:
+            pass
+    return 2147483647
+        
+
 def write_cookies(window, filename):
     with open(filename, "w") as f:
         f.write("# Netscape HTTP Cookie File\n")
@@ -38,10 +54,7 @@ def write_cookies(window, filename):
                 value = cookie.value
                 path = cookie['path']
                 domain = cookie['domain']
-                if 'expires' in cookie and cookie['expires']:
-                    expiry = datetime.datetime.strptime(str(cookie['expires']), "%Y-%m-%d %H:%M:%S %z").timestamp()
-                else:
-                    expiry = 0
+                expiry = parse_cookie_expires(cookie)
                 secure = str(cookie['secure']).upper()
                 include_subdomains = str(domain[0] == '.').upper()
                 f.write(f"{domain}\t{include_subdomains}\t{path}\t{secure}\t{expiry}\t{name}\t{value}\n")
