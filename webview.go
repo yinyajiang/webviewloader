@@ -40,18 +40,23 @@ type WebviewConfig struct {
 }
 
 type WebviewOptions struct {
-	UA           string
-	Title        string
-	Width        int
-	Height       int
-	WaitElements []string
-	WaitCookies  []string
-	Hidden       bool
+	UA               string
+	Title            string
+	Width            int
+	Height           int
+	WaitElements     []string
+	WaitCookies      []string
+	WaitDomains      []string
+	Hidden           bool
+	WriteCookiesFile string
+	Forever          bool
 }
 
 type WebviewResult struct {
-	UA      string            `json:"ua"`
-	Cookies map[string]string `json:"cookies"`
+	UA          string            `json:"ua"`
+	Cookies     map[string]string `json:"cookies"`
+	URL         string            `json:"url"`
+	CookiesFile string            `json:"cookies_file"`
 }
 
 type WebView struct {
@@ -159,11 +164,21 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 		args = append(args, "--cookies")
 		args = append(args, opt.WaitCookies...)
 	}
+	if len(opt.WaitDomains) > 0 {
+		args = append(args, "--domains")
+		args = append(args, opt.WaitDomains...)
+	}
 	if opt.Hidden {
 		args = append(args, "--hidden")
 	}
 	if opt.UA != "" {
 		args = append(args, "--ua", opt.UA)
+	}
+	if opt.WriteCookiesFile != "" {
+		args = append(args, "--write-cookies", opt.WriteCookiesFile)
+	}
+	if opt.Forever {
+		args = append(args, "--forever")
 	}
 
 	webviewPath, err := l.GetWebviewPath()
