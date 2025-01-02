@@ -50,6 +50,7 @@ type WebviewOptions struct {
 	Hidden           bool
 	WriteCookiesFile string
 	Forever          bool
+	Interval         float64
 }
 
 type WebviewResult struct {
@@ -179,6 +180,9 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 	}
 	if opt.Forever {
 		args = append(args, "--forever")
+	}
+	if opt.Interval > 0 {
+		args = append(args, "--interval", fmt.Sprintf("%f", opt.Interval))
 	}
 
 	webviewPath, err := l.GetWebviewPath()
