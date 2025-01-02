@@ -27,7 +27,7 @@ def get_cookies_nm(window):
     return nm
 
 
-def parse_cookie_expires(cookie):
+def _parse_cookie_expires(cookie):
     if cookie and 'expires' in cookie and cookie['expires']:
         if isinstance(cookie['expires'], int):
             return cookie['expires']
@@ -40,6 +40,13 @@ def parse_cookie_expires(cookie):
         except Exception:
             pass
     return 2147483647
+
+
+def parse_cookie_expires(cookie):
+    expires = _parse_cookie_expires(cookie)
+    if expires <= 0:
+        return 2147483647
+    return expires
         
 
 def write_cookies(window, filename):
