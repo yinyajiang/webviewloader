@@ -17,6 +17,8 @@ class options:
         self.wait_domains = None
         self.write_cookies = False
         self.forever = False
+        self.interval = 1.0
+
 
 def get_cookies_nm(window):
     cookies = window.get_cookies()
@@ -126,7 +128,7 @@ def hook(window, opts):
         start_timer()
         
     def start_timer():
-        timer = threading.Timer(1, timer_func)
+        timer = threading.Timer(opts.interval, timer_func)
         timer.start()
     start_timer()
 
@@ -157,6 +159,8 @@ if __name__ == '__main__':
                         help='Run forever')
     parser.add_argument('--write-cookies',
                         help='Write cookies to a Netscape HTTP Cookie File')
+    parser.add_argument('--interval', default=1.0, type=float,
+                        help='Interval between checks')
     args = parser.parse_args()
 
     title = args.title
@@ -170,5 +174,7 @@ if __name__ == '__main__':
     opts.wait_domains = args.domains
     opts.write_cookies = args.write_cookies
     opts.forever = args.forever
+    opts.interval = args.interval
+    
     window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden)
     webview.start(lambda w: hook(w, opts), window, user_agent=args.ua)
