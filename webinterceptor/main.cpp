@@ -8,6 +8,7 @@
     #include <io.h>
     #include <fcntl.h>
 #endif
+#include <QNetworkProxyFactory>
 
 QString decodeMaybeBase64(QString base64);
 
@@ -38,7 +39,7 @@ int main(int argc, char *argv[]) {
     parser.addOption(QCommandLineOption("banner-font-color", "Banner font color", "color", "#F9F9F9"));
     parser.addOption(QCommandLineOption("win-color", "Windows color", "color", "#121212"));
     parser.addOption(QCommandLineOption("forever", "Run forever"));
-
+    parser.addOption(QCommandLineOption("system-proxy", "Use system proxy"));
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
@@ -71,6 +72,13 @@ int main(int argc, char *argv[]) {
     opt.showAddress = parser.isSet("address");
     opt.winColor = parser.value("win-color");
     opt.isforever = parser.isSet("forever");
+
+    if(parser.isSet("system-proxy")) {
+        QList<QNetworkProxy> proxyList = QNetworkProxyFactory::systemProxyForQuery();
+        if(!proxyList.isEmpty()) {
+            QNetworkProxy::setApplicationProxy(proxyList.first());
+        }
+    }
 
     Browser browser(opt);
     browser.show();

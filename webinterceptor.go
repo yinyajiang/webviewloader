@@ -37,6 +37,7 @@ type WebInterceptorOptions struct {
 	BannerFontColor string
 	ShowAddress     bool
 	WindowsColor    string
+	UseSystemProxy  bool
 }
 
 type WebInterceptorResult struct {
@@ -124,6 +125,9 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	}
 	if opt.BannerFontColor != "" {
 		args = append(args, "--banner-font-color", opt.BannerFontColor)
+	}
+	if opt.UseSystemProxy {
+		args = append(args, "--system-proxy")
 	}
 
 	webInterceptorPath, err := l.GetWebInterceptorPath()
