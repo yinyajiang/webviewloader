@@ -2,18 +2,9 @@ import re
 import subprocess
 import argparse
 
-def get_cert(): 
-    prename='Developer ID Application:'
-    output = subprocess.check_output(f'security find-certificate -c "{prename}"', shell=True).decode('utf-8')
-    match = re.compile(f'"({prename}.+)"').search(output)
-    cert = match.group(1)
-    if cert == '':
-        raise Exception('No certificate found')
-    return cert
 
 def check_cert_valid(cert): 
-    prename='Developer ID Application:'
-    output = subprocess.check_output(f'security find-certificate -c "{prename}"', shell=True).decode('utf-8')
+    output = subprocess.check_output(f'security find-certificate -c "{cert}"', shell=True).decode('utf-8')
     if cert not in output:
         raise Exception(f'{cert} not found')
     return True

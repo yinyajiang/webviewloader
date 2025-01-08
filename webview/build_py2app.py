@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='Command Line Parser')
 parser.add_argument('--name', default='load_cookie')
 parser.add_argument('--icon', default='')
 parser.add_argument('--cert', default='')
+parser.add_argument('--bundle-id', default='com.example.webview')
 parser.add_argument('*')
 args = parser.parse_args()
 if args.icon and args.icon.startswith('http'):
@@ -18,10 +19,9 @@ if args.icon and args.icon.startswith('http'):
         f.write(response.content)
     args.icon = dest
 
-
 # 删除参数，否则失败
 for arg in sys.argv:
-    if arg in ['--icon', '--name', '--cert']:
+    if arg in ['--icon', '--name', '--cert', '--bundle-id']:
         index = sys.argv.index(arg)
         sys.argv.pop(index)
         sys.argv.pop(index)
@@ -34,6 +34,11 @@ OPTIONS = {
     'strip': True,
     'includes': ['WebKit', 'Foundation', 'webview'],
     'excludes': ['PyQt5', 'PyQt6', 'PySide2', 'PySide6'],
+    'plist': {
+        'CFBundleIdentifier': args.bundle_id.lower().replace(' ', ''), 
+        'CFBundleShortVersionString': '1.0.0', 
+        'CFBundleVersion': '1.0.0',
+    }
 }
 if args.icon:
     OPTIONS['iconfile'] = 'icon.icns'

@@ -15,27 +15,29 @@ pip3 install setuptools==70.3.0
 pip3 install -r requirements.txt
 pip3 install py2app 
 
-#解析传过来的cert
+
+# 使用数组保存参数，这样可以正确处理带空格的值
+declare -a original_args=()
+cert=""
+
+# 遍历所有参数
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        --cert=*)
-            cert="${1#*=}"
-            shift
-            ;;
-        --cert)
-            cert="$2"
-            shift 2
-            ;;
-        *)
-            shift
-            ;;
-    esac
+    if [[ "$1" == --cert=* ]]; then
+        cert="${1#*=}"
+    elif [[ "$1" == "--cert" && -n "$2" ]]; then
+        cert="$2"
+        shift  # 额外移动一次，跳过证书值
+    else
+        original_args+=("$1")
+    fi
+    shift
 done
+
 echo "cert: $cert"
 
 # 构建
 rm -rf build dist .eggs
-python3 build_py2app.py py2app $@
+python3 build_py2app.py py2app "${original_args[@]}"
 
 # 获取dist的.app目录的名字
 app_name=$(ls dist | grep -E '\.app$')

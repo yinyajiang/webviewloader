@@ -3,7 +3,6 @@ import sys
 import argparse
 import requests
 import shutil
-from build_cert import get_cert
 import subprocess
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
@@ -16,7 +15,11 @@ parser.add_argument('--name', default='load_cookie')
 parser.add_argument('--cert', default='')
 parser.add_argument('--icon', default='')
 parser.add_argument('--win-sign', default='')
+parser.add_argument('--bundle-id', default='')
 args = parser.parse_args()
+
+if args.bundle_id:
+    raise Exception('not implement bundleid')
 
 
 if args.icon and args.icon.startswith('http'):
