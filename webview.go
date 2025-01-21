@@ -50,6 +50,7 @@ type WebviewOptions struct {
 	Hidden           bool
 	WriteCookiesFile string
 	Interval         float64
+	RunJsFile        string
 }
 
 type WebviewResult struct {
@@ -179,6 +180,9 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 	}
 	if opt.Interval > 0 {
 		args = append(args, "--interval", fmt.Sprintf("%f", opt.Interval))
+	}
+	if opt.RunJsFile != "" {
+		args = append(args, "--run-js-file", opt.RunJsFile)
 	}
 
 	webviewPath, err := l.GetWebviewPath()

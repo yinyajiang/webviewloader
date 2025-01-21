@@ -18,10 +18,13 @@ class options:
         self.write_cookies = False
         self.forever = False
         self.interval = 1.0
+        self.run_js_file = None
 
 
 def get_cookies_nm(window):
     cookies = window.get_cookies()
+    if not cookies:
+        return {}
     nm = {}
     for c in cookies:
         k, v = c.output(header="").strip().split(";")[0].strip().split("=", 1)
@@ -117,7 +120,6 @@ def is_ready(window, opts=None):
     return True
 
 
-
 def hook(window, opts):
     def timer_func():
         if is_ready(window, opts):
@@ -131,6 +133,25 @@ def hook(window, opts):
         timer = threading.Timer(opts.interval, timer_func)
         timer.start()
     start_timer()
+
+
+class JsApi:
+    def set_opts(self, window, opts):
+        self.__window_ = window
+        self.__opts_ = opts
+
+    def result(self, value, is_exit=True):
+        print(str(value)+"\n", flush=True)
+        if is_exit:
+            self.__window_.destroy()
+            exit(0)
+
+
+def run_js_file(window, opts):
+    with open(opts.run_js_file, "r") as f:
+        js_code = f.read()
+        window.evaluate_js(js_code)
+
 
 
 if __name__ == '__main__':
@@ -161,6 +182,8 @@ if __name__ == '__main__':
                         help='Write cookies to a Netscape HTTP Cookie File')
     parser.add_argument('--interval', default=1.0, type=float,
                         help='Interval between checks')
+    parser.add_argument('--run-js-file',
+                        help='JavaScript file to inject')
     args = parser.parse_args()
 
     title = args.title
@@ -175,6 +198,13 @@ if __name__ == '__main__':
     opts.write_cookies = args.write_cookies
     opts.forever = args.forever
     opts.interval = args.interval
+    opts.run_js_file = args.run_js_file
     
-    window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden)
-    webview.start(lambda w: hook(w, opts), window, user_agent=args.ua)
+    if opts.run_js_file:
+        jsapi = JsApi()
+        window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden, js_api=jsapi)
+        jsapi.set_opts(window, opts)
+        webview.start(lambda w: run_js_file(w, opts), window, user_agent=args.ua)
+    else:
+        window = webview.create_window(title, args.url, width=args.width, height=args.height, hidden=args.hidden)
+        webview.start(lambda w: hook(w, opts), window, user_agent=args.ua)
