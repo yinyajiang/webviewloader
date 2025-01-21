@@ -58,6 +58,7 @@ type WebviewResult struct {
 	Cookies     map[string]string `json:"cookies"`
 	URL         string            `json:"url"`
 	CookiesFile string            `json:"cookies_file"`
+	Extra       map[string]any    `json:"extra,omitempty"`
 }
 
 type WebView struct {
@@ -196,6 +197,23 @@ func (l *WebView) Start(url string, opt WebviewOptions) (result WebviewResult, e
 		obj, e := findJsonObject(stdout)
 		if e == nil {
 			err = json.Unmarshal(obj, &result)
+			if err != nil {
+				return
+			}
+			var raw map[string]any
+			if err = json.Unmarshal(obj, &raw); err != nil {
+				return
+			}
+			if result.Extra == nil {
+				result.Extra = make(map[string]any)
+			}
+			for k, v := range raw {
+				switch k {
+				case "ua", "cookies", "cookies_file", "url":
+					continue
+				}
+				result.Extra[k] = v
+			}
 			return
 		}
 	}
