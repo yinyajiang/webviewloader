@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 #include <iostream>
 #include <QNetworkCookie>
-
+#include <QFile>
 
 UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEngineView* webView, Options opt)
     : QWebEngineUrlRequestInterceptor(profile)
@@ -25,6 +25,22 @@ UrlRequestInterceptor::UrlRequestInterceptor(QWebEngineProfile* profile, QWebEng
     connect(m_webView, &QWebEngineView::titleChanged, this, [this](const QString& title) {
         this->m_htmlTitle = title;
     });
+
+    if(!m_opt.dumpHtml.isEmpty()){
+        connect(m_webView, &QWebEngineView::loadFinished, this, [this](bool ok) {
+            if(!ok){
+                return;
+            }
+            m_webView->page()->toHtml([this](const QString& html) {
+                QFile file(m_opt.dumpHtml);
+                if(file.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    file.write(html.toUtf8());
+                    file.close();
+                    QCoreApplication::exit(0);
+                }
+            });
+        });
+    }
 }
 
 void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info) {

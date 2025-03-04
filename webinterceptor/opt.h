@@ -13,4 +13,5 @@ struct Options {
     QString winColor;
     QString bannerFontColor;
     bool isforever;
+    QString dumpHtml;
 };

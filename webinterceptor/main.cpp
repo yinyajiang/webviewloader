@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     parser.addOption(QCommandLineOption("win-color", "Windows color", "color", "#121212"));
     parser.addOption(QCommandLineOption("forever", "Run forever"));
     parser.addOption(QCommandLineOption("system-proxy", "Use system proxy"));
+    parser.addOption(QCommandLineOption("dump-html", "Dump html", "file"));
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
@@ -72,6 +73,7 @@ int main(int argc, char *argv[]) {
     opt.showAddress = parser.isSet("address");
     opt.winColor = parser.value("win-color");
     opt.isforever = parser.isSet("forever");
+    opt.dumpHtml = parser.value("dump-html");
 
     if(parser.isSet("system-proxy")) {
         QList<QNetworkProxy> proxyList = QNetworkProxyFactory::systemProxyForQuery();
@@ -82,6 +84,9 @@ int main(int argc, char *argv[]) {
 
     Browser browser(opt);
     browser.show();
+    if(!opt.dumpHtml.isEmpty()){
+        browser.hide();
+    }
     return app.exec();
 }
 
