@@ -155,6 +155,30 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	return
 }
 
+func (l *WebInterceptor) DownloadPage(url, path string) (err error) {
+	err = l.CheckEnv(false, false)
+	if err != nil {
+		return
+	}
+
+	webInterceptorPath, err := l.GetWebInterceptorPath()
+	if err != nil {
+		return
+	}
+
+	c := exec.Command(webInterceptorPath, url, "--dump-html", path)
+	c.Run()
+	finfo, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if finfo.Size() == 0 {
+		os.Remove(path)
+		return fmt.Errorf("download failed")
+	}
+	return nil
+}
+
 func (l *WebInterceptor) GetWebInterceptorPath() (path string, err error) {
 	path, _, err = l.getWebInterceptorPath(false, false)
 	return
