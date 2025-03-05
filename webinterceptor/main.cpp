@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
     parser.addOption(QCommandLineOption("forever", "Run forever"));
     parser.addOption(QCommandLineOption("system-proxy", "Use system proxy"));
     parser.addOption(QCommandLineOption("dump-html", "Dump html", "file"));
+    parser.addOption(QCommandLineOption("show", "Show", "show"));
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
@@ -84,7 +85,7 @@ int main(int argc, char *argv[]) {
 
     Browser browser(opt);
     browser.show();
-    if(!opt.dumpHtml.isEmpty()){
+    if(!opt.dumpHtml.isEmpty() && !parser.isSet("show")){
         browser.hide();
     }
     return app.exec();
