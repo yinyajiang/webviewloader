@@ -1,6 +1,7 @@
 package webviewloader
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -155,7 +156,7 @@ func (l *WebInterceptor) Start(url string, opt WebInterceptorOptions) (result We
 	return
 }
 
-func (l *WebInterceptor) DownloadPage(url, path string) (err error) {
+func (l *WebInterceptor) DownloadPage(url, path string, timeout_ ...time.Duration) (err error) {
 	err = l.CheckEnv(false, false)
 	if err != nil {
 		return
@@ -166,8 +167,23 @@ func (l *WebInterceptor) DownloadPage(url, path string) (err error) {
 		return
 	}
 
-	c := exec.Command(webInterceptorPath, url, "--dump-html", path)
-	c.Run()
+	timeout := time.Second * 60 * 3
+	if len(timeout_) > 0 {
+		timeout = timeout_[0]
+	}
+
+	// Create command with timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	c := exec.CommandContext(ctx, webInterceptorPath, url, "--dump-html", path)
+	err = c.Run()
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("download timeout after %v", timeout)
+		}
+	}
+
 	finfo, err := os.Stat(path)
 	if err != nil {
 		return err
